@@ -1,3 +1,6 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
@@ -8,6 +11,9 @@ import prettier from "eslint-config-prettier";
 
 import { defineConfig, globalIgnores } from "eslint/config";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export default defineConfig([
   globalIgnores(["dist", "node_modules", ".turbo", "coverage"]),
 
@@ -16,14 +22,12 @@ export default defineConfig([
   ...tseslint.configs.recommendedTypeChecked,
 
   {
-    files: ["**/*.{ts,tsx,js,mjs,cjs}"],
-
-    ignores: ["eslint.config.ts"],
+    files: ["src/**/*.{ts,tsx,js,mjs,cjs}"],
 
     languageOptions: {
       parserOptions: {
         project: true,
-        tsconfigRootDir: import.meta.dirname,
+        tsconfigRootDir: __dirname,
       },
 
       globals: {
@@ -38,31 +42,6 @@ export default defineConfig([
     },
 
     rules: {
-      /*
-       * Imports
-       */
-      "import/order": [
-        "error",
-        {
-          groups: [
-            "builtin",
-            "external",
-            "internal",
-            ["parent", "sibling", "index"],
-          ],
-
-          "newlines-between": "always",
-
-          alphabetize: {
-            order: "asc",
-            caseInsensitive: true,
-          },
-        },
-      ],
-
-      /*
-       * Unused imports
-       */
       "unused-imports/no-unused-imports": "error",
 
       "@typescript-eslint/no-unused-vars": [
@@ -73,28 +52,25 @@ export default defineConfig([
         },
       ],
 
-      /*
-       * TypeScript
-       */
       "@typescript-eslint/no-explicit-any": "warn",
 
-      "@typescript-eslint/consistent-type-imports": [
-        "error",
-        {
-          prefer: "type-imports",
-        },
-      ],
+      "@typescript-eslint/consistent-type-imports": "error",
 
       "@typescript-eslint/no-floating-promises": "error",
 
-      "@typescript-eslint/await-thenable": "error",
-
-      /*
-       * Promise rules
-       */
       "promise/catch-or-return": "error",
 
-      "promise/no-return-wrap": "error",
+      "import/order": [
+        "error",
+        {
+          "newlines-between": "always",
+
+          alphabetize: {
+            order: "asc",
+            caseInsensitive: true,
+          },
+        },
+      ],
     },
   },
 
