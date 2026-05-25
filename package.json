@@ -1,0 +1,29 @@
+{
+  "name": "turborepodockerdeploy",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types",
+    "db:migrate": "cd packages/db && pnpm dlx prisma migrate deploy && cd ../../",
+    "db:generate": "cd packages/db && pnpm dlx prisma generate && cd ../../",
+    "db:build": "pnpm run --filter=@repo/db build",
+    "web:build": "pnpm run --filter=web build",
+    "web:start": "pnpm run db:migrate && cd apps/web && pnpm run start",
+    "backend:build": "pnpm run --filter=backend build",
+    "backend:start": "pnpm run db:migrate && cd apps/backend && pnpm run start",
+    "websocket:build": "pnpm run --filter=websocket build",
+    "websocket:start": "pnpm run db:migrate && cd apps/websocket && pnpm run start"
+  },
+  "devDependencies": {
+    "prettier": "^3.7.4",
+    "turbo": "^2.9.7",
+    "typescript": "5.9.2"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=18"
+  }
+}
