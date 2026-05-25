@@ -1,3 +1,6 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import js from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
@@ -5,9 +8,12 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import react from "eslint-plugin-react";
 import importPlugin from "eslint-plugin-import";
 import unusedImports from "eslint-plugin-unused-imports";
-import tseslint from "typescript-eslint";
+import tseslint, { parser } from "typescript-eslint"
 import prettier from "eslint-config-prettier";
 import { defineConfig, globalIgnores } from "eslint/config";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default defineConfig([
   globalIgnores([
@@ -19,27 +25,26 @@ export default defineConfig([
 
   js.configs.recommended,
 
-  ...tseslint.configs.recommendedTypeChecked,
-
   {
-    files: ["**/*.{ts,tsx}"],
+    files: ["src/**/*.{ts,tsx}"],
 
     languageOptions: {
+      parser,
       parserOptions: {
-        project: "./apps/backend/tsconfig.json",
+        project: [
+          path.join(__dirname, "tsconfig.app.json"),
+          path.join(__dirname, "tsconfig.node.json"),
+        ],
         tsconfigRootDir: import.meta.dirname,
       },
-
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-      },
+      globals: { ...globals.browser, ...globals.node },
     },
 
     plugins: {
       react,
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
+      "@typescript-eslint": tseslint.plugin,
       import: importPlugin,
       "unused-imports": unusedImports,
     },

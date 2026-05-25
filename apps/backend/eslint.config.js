@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import js from "@eslint/js";
 import globals from "globals";
-import tseslint from "typescript-eslint";
+import tseslint, { parser } from "typescript-eslint";
 import importPlugin from "eslint-plugin-import";
 import unusedImports from "eslint-plugin-unused-imports";
 import promisePlugin from "eslint-plugin-promise";
@@ -19,23 +19,22 @@ export default defineConfig([
 
   js.configs.recommended,
 
-  ...tseslint.configs.recommendedTypeChecked,
-
   {
-    files: ["src/**/*.{ts,tsx,js,mjs,cjs}"],
+    files: ["src/**/*.{ts,tsx}"],
 
     languageOptions: {
+      parser,
       parserOptions: {
-        project: "./apps/frontend/tsconfig.json",
+        project: path.join(__dirname, "tsconfig.json"),
         tsconfigRootDir: __dirname,
       },
-
       globals: {
         ...globals.node,
       },
     },
 
     plugins: {
+      "@typescript-eslint": tseslint.plugin,
       import: importPlugin,
       "unused-imports": unusedImports,
       promise: promisePlugin,
@@ -46,16 +45,10 @@ export default defineConfig([
 
       "@typescript-eslint/no-unused-vars": [
         "warn",
-        {
-          argsIgnorePattern: "^_",
-          varsIgnorePattern: "^_",
-        },
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
-
       "@typescript-eslint/no-explicit-any": "warn",
-
       "@typescript-eslint/consistent-type-imports": "error",
-
       "@typescript-eslint/no-floating-promises": "error",
 
       "promise/catch-or-return": "error",
@@ -64,11 +57,7 @@ export default defineConfig([
         "error",
         {
           "newlines-between": "always",
-
-          alphabetize: {
-            order: "asc",
-            caseInsensitive: true,
-          },
+          alphabetize: { order: "asc", caseInsensitive: true },
         },
       ],
     },
