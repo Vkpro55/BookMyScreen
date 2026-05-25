@@ -26,7 +26,7 @@ export default defineConfig([
 
     languageOptions: {
       parserOptions: {
-        project: true,
+        project: "./apps/frontend/tsconfig.json",
         tsconfigRootDir: __dirname,
       },
 
