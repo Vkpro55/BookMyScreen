@@ -4,16 +4,20 @@ import { ReactNode } from "react";
 
 interface ButtonProps {
   children: ReactNode;
-  className?: string;
-  appName: string;
+  type?: string;
 }
 
-export const Button = ({ children, className, appName }: ButtonProps) => {
+export const Button = ({
+  children,
+  type = "primary",
+}: ButtonProps) => {
+  const buttonVariants: Record<string, string> = {
+    primary:
+      "bg-[#F84464] text-white px-5 py-2 rounded-md hover:opacity-90",
+  };
+
   return (
-    <button
-      className={className}
-      onClick={() => alert(`Hello from your ${appName} app!`)}
-    >
+    <button className={buttonVariants[type]}>
       {children}
     </button>
   );
