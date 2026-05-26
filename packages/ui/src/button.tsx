@@ -13,7 +13,7 @@ export const Button = ({
 }: ButtonProps) => {
   const buttonVariants: Record<string, string> = {
     primary:
-      "bg-[#F84464] text-white px-5 py-2 rounded-md hover:opacity-90",
+      "bg-[#F84464] text-white cursor-pointer px-4 py-1 rounded text-sm font-medium font-inter",
   };
 
   return (
