@@ -1,4 +1,4 @@
-import "dotenv/config"; 
+import "dotenv/config";
 import { defineConfig, env } from "prisma/config";
 
 console.log("prisma.config.ts CWD: ", process.cwd());
