@@ -1,6 +1,7 @@
 import mainLogo from "../../assets/main-icon.png";
 import { FaSearch } from "react-icons/fa";
 import { MdOutlineArrowDropDown } from "react-icons/md";
+import NavItem from "../navbar/NavItem";
 
 import { Icon } from "@repo/ui/icon";
 import { Button } from "@repo/ui/button";
@@ -38,7 +39,59 @@ function Header() {
                 </div>
             </div>
             {/* Bottom Navbar */}
-        </div>
+            <div className="bg-[#f2f2f2] px-4 md:px-8">
+                <div className="max-w-screen-xl mx-auto flex justify-between items-center py-2">
+                    {/* Left Part */}
+                    <nav>
+                        <ul className="flex items-center gap-6 group">
+                            <li>
+                                <NavItem to="#">Movies</NavItem>
+                            </li>
+
+                            <li>
+                                <NavItem to="#">Streams</NavItem>
+                            </li>
+
+                            <li>
+                                <NavItem to="#">Events</NavItem>
+                            </li>
+
+                            <li>
+                                <NavItem to="#">Plays</NavItem>
+                            </li>
+
+                            <li>
+                                <NavItem to="#">Sports</NavItem>
+                            </li>
+
+                            <li>
+                                <NavItem to="#">Activities</NavItem>
+                            </li>
+                        </ul>
+                    </nav>
+                    {/* Right Part */}
+                    <nav>
+                        <ul className="text-xs font-medium flex items-center gap-6 group">
+                            <li>
+                                <NavItem to="#">ListYourShow</NavItem>
+                            </li>
+
+                            <li>
+                                <NavItem to="#">Corporates</NavItem>
+                            </li>
+
+                            <li>
+                                <NavItem to="#">Offers</NavItem>
+                            </li>
+
+                            <li>
+                                <NavItem to="#">Gift Card</NavItem>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div >
     );
 }
 
