@@ -15,9 +15,11 @@
     "backend:build": "pnpm run --filter=backend build",
     "backend:start": "pnpm run db:migrate && cd apps/backend && pnpm run start",
     "websocket:build": "pnpm run --filter=websocket build",
-    "websocket:start": "pnpm run db:migrate && cd apps/websocket && pnpm run start"
+    "websocket:start": "pnpm run db:migrate && cd apps/websocket && pnpm run start",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
     "prettier": "^3.7.4",
     "turbo": "^2.9.7",
     "typescript": "5.9.2"
