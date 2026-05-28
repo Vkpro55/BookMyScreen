@@ -1,12 +1,16 @@
 import mainLogo from "../../assets/main-icon.png";
+import map from "../../assets/pin.gif"
 import { FaSearch } from "react-icons/fa";
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import NavItem from "../navbar/NavItem";
 
 import { Icon } from "@repo/ui/icon";
 import { Button } from "@repo/ui/button";
+import { useLocation } from "../../context/LocationContext";
+
 
 function Header() {
+  const { location, loading } = useLocation();
   return (
     <div className="w-full text-sm bg-white">
       {/* Top Navbar */}
@@ -35,7 +39,8 @@ function Header() {
           {/* Right Part */}
           <div className="flex items-center space-x-6">
             <div className="text-sm font-normal cursor-pointer flex justify-center items-center gap-2">
-              Mumbai
+              {loading && <img src={map} alt="location loader" className="w-8 h-8" />}
+              {location && <p>{location}</p>}
               <Icon variant="muted" Icon={MdOutlineArrowDropDown} />
             </div>
             <Button children="Sign in" type="primary" />
