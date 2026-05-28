@@ -7,6 +7,9 @@ export const reactConfig = defineConfig(
         files: ["**/*.ts", "**/*.tsx"],
         ...reactPlugin.configs.flat.recommended,
         ...reactPlugin.configs.flat["jsx-runtime"],
+        plugins: {
+            "react-hooks": reactHooks,
+        },
         languageOptions: {
             ...reactPlugin.configs.flat.recommended?.languageOptions,
             ...reactPlugin.configs.flat["jsx-runtime"]?.languageOptions,
@@ -14,6 +17,8 @@ export const reactConfig = defineConfig(
                 React: "writable",
             },
         },
-    },
-    reactHooks.configs.flat["recommended-latest"],
+        rules: {
+            ...reactHooks.configs.recommended.rules,
+        },
+    }
 );
