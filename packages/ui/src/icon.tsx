@@ -22,9 +22,6 @@ export const Icon = ({
   };
 
   return (
-    <Icon
-      size={size}
-      className={`${iconVariants[variant]} ${className}`}
-    />
+    <Icon size={size} className={`${iconVariants[variant]} ${className}`} />
   );
 };
