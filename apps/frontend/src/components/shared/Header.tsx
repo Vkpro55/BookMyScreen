@@ -26,7 +26,7 @@ function Header() {
                 className="border border-gray-300 rounded px-4 py-1.5 w-[400px] text-sm outline-none"
               />
               <Icon
-                type="gray"
+                variant="muted"
                 Icon={FaSearch}
                 className="absolute top-2 right-2"
               />
@@ -36,7 +36,7 @@ function Header() {
           <div className="flex items-center space-x-6">
             <div className="text-sm font-normal cursor-pointer flex justify-center items-center gap-2">
               Mumbai
-              <Icon type="gray" Icon={MdOutlineArrowDropDown} />
+              <Icon variant="muted" Icon={MdOutlineArrowDropDown} />
             </div>
             <Button children="Sign in" type="primary" />
           </div>
