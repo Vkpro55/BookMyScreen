@@ -17,13 +17,24 @@
     "backend:start": "pnpm run db:migrate && cd apps/backend && pnpm run start",
     "websocket:build": "pnpm run --filter=websocket build",
     "websocket:start": "pnpm run db:migrate && cd apps/websocket && pnpm run start",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint-staged": "lint-staged"
   },
   "devDependencies": {
     "husky": "^9.1.7",
+    "lint-staged": "^17.0.5",
     "prettier": "^3.7.4",
     "turbo": "^2.9.7",
     "typescript": "5.9.2"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
