@@ -8,7 +8,7 @@ interface NavItemProps {
 function NavItem({ to, children }: NavItemProps) {
   return (
     <NavLink
-      to={to ? to : "#"}
+      to={to ?? "#"}
       className="text-gray-700 hover:text-red-500 transition-colors"
     >
       {children}

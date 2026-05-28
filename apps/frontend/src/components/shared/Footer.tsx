@@ -1,9 +1,6 @@
 import {
-  FaFacebookF,
   FaTwitter,
   FaInstagram,
-  FaYoutube,
-  FaPinterestP,
   FaLinkedinIn,
 } from "react-icons/fa";
 import mainLogo from "../../assets/main-icon-white.png";
