@@ -1,8 +1,4 @@
-import {
-  FaTwitter,
-  FaInstagram,
-  FaLinkedinIn,
-} from "react-icons/fa";
+import { FaTwitter, FaInstagram, FaLinkedinIn } from "react-icons/fa";
 import mainLogo from "../../assets/main-icon-white.png";
 
 import { Icon } from "@repo/ui/icon";
