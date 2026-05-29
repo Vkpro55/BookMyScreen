@@ -7,11 +7,12 @@ import { RouterProvider } from "react-router/dom";
 
 import "./App.css";
 import RootLayout from "./layouts/RootLayout";
+import Home from "./pages/Home";
 
 const routes = createRoutesFromElements(
   <>
     <Route path="/" element={<RootLayout />}>
-      <Route index={true} element=<div>HomePage</div> />
+      <Route index={true} element={<Home />} />
     </Route>
   </>,
 );

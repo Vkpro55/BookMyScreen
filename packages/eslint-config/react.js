@@ -1,24 +1,28 @@
+import globals from "globals";
 import reactPlugin from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
-import { defineConfig } from "eslint/config";
 
-export const reactConfig = defineConfig(
-    {
-        files: ["**/*.ts", "**/*.tsx"],
-        ...reactPlugin.configs.flat.recommended,
-        ...reactPlugin.configs.flat["jsx-runtime"],
-        plugins: {
-            "react-hooks": reactHooks,
+export const reactConfig = {
+    ...reactPlugin.configs.flat["jsx-runtime"],
+
+    languageOptions: {
+        globals: {
+            ...globals.browser,
         },
-        languageOptions: {
-            ...reactPlugin.configs.flat.recommended?.languageOptions,
-            ...reactPlugin.configs.flat["jsx-runtime"]?.languageOptions,
-            globals: {
-                React: "writable",
-            },
+    },
+
+    plugins: {
+        "react-hooks": reactHooks,
+    },
+
+    rules: {
+        ...reactHooks.configs.recommended.rules,
+        "react/react-in-jsx-scope": "off",
+    },
+
+    settings: {
+        react: {
+            version: "detect",
         },
-        rules: {
-            ...reactHooks.configs.recommended.rules,
-        },
-    }
-);
+    },
+};
