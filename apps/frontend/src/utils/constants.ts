@@ -7,6 +7,11 @@ import m2 from "../assets/m2.avif";
 import m3 from "../assets/m3.avif";
 import m4 from "../assets/m4.avif";
 import m5 from "../assets/m5.avif";
+import e1 from "../assets/e1.avif";
+import e2 from "../assets/e2.avif";
+import e3 from "../assets/e3.avif";
+import e4 from "../assets/e4.avif";
+import e5 from "../assets/e5.avif";
 
 export const banners: string[] = [banner1, banner2, banner3, banner4];
 
@@ -93,4 +98,32 @@ export const movies = [
   //     "votes": "3.7K",
   //     "img": m10
   //   }
+];
+
+export const events = [
+  {
+    title: "COMEDY SHOWS",
+    subtitle: "205+ Events",
+    img: e1,
+  },
+  {
+    title: "AMUSEMENT PARK",
+    subtitle: "20+ Events",
+    img: e2,
+  },
+  {
+    title: "THEATRE SHOWS",
+    subtitle: "80+ Events",
+    img: e3,
+  },
+  {
+    title: "KIDS",
+    subtitle: "25+ Events",
+    img: e4,
+  },
+  {
+    title: "ADVENTURE & FUN",
+    subtitle: "10+ Events",
+    img: e5,
+  },
 ];

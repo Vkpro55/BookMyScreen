@@ -1,3 +1,4 @@
+import LiveEvents from "../components/LiveEvents";
 import Recommended from "../components/Recommended";
 import BannerSlider from "../components/shared/BannerSlider";
 
@@ -6,6 +7,7 @@ function Home() {
     <>
       <BannerSlider />
       <Recommended />
+      <LiveEvents />
     </>
   );
 }
