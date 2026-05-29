@@ -23,7 +23,11 @@
 
     /* Add or update these lines */
     "strict": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+    // "moduleResolution": "Bundler"
   },
   "include": ["src"]
 }
