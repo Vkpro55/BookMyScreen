@@ -1,4 +1,5 @@
 import { movies } from "../utils/constants";
+import Card from "./shared/Card";
 
 function Recommended() {
   return (
@@ -13,27 +14,7 @@ function Recommended() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-col-4 xl:grid-cols-5 gap-4">
           {movies.map((movie, index) => {
-            return (
-              <div key={index} className="rounded cursor-pointer">
-                <div>
-                  <img
-                    src={movie.img}
-                    alt={movie.title}
-                    className="w-full h-[300px] object-cover rounded rounded-b-none"
-                  />
-                </div>
-
-                <div className="bg-black text-white flex justify-between items-center text-sm px-2 py-1">
-                  <span>⭐ {movie.rating}/10</span>
-                  <span>{movie.votes} Votes</span>
-                </div>
-
-                <div className="px-2 py-1">
-                  <h3 className="text-lg font-semibold">{movie.title}</h3>
-                  <p className="text-sm text-gray-600"> {movie.genre}</p>
-                </div>
-              </div>
-            );
+            return <Card movie={movie} index={index} />;
           })}
         </div>
       </div>
