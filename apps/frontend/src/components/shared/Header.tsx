@@ -10,6 +10,7 @@ import { useLocation } from "../../context/LocationContext";
 
 function Header() {
   const { location, loading } = useLocation();
+
   return (
     <div className="w-full text-sm bg-white">
       {/* Top Navbar */}
