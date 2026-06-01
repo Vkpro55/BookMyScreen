@@ -17,6 +17,9 @@ import e2 from "../assets/e2.avif";
 import e3 from "../assets/e3.avif";
 import e4 from "../assets/e4.avif";
 import e5 from "../assets/e5.avif";
+import inox from "../assets/inox.avif";
+import pvr from "../assets/pvr.avif";
+import cinepolis from "../assets/cinepolis.avif";
 
 export const banners: string[] = [banner1, banner2, banner3, banner4];
 
@@ -246,5 +249,79 @@ export const allMovies = [
     img: m10,
     languages: "English",
     age: "A",
+  },
+];
+
+export const filters = [
+  "2D",
+  "3D",
+  "Wheelchair Friendly",
+  "Premium Seats",
+  "Recliners",
+  "IMAX",
+  "PVR PXL",
+  "4DX",
+  "Laser",
+  "Dolby Atmos",
+];
+
+export const theatres = [
+  {
+    name: "INOX Quest Mall, Ballygunge, Kolkata",
+    distance: "2.0 km",
+    cancellation: "Allows cancellation",
+    img: inox,
+    timings: [
+      { time: "10:15 AM", label: "RECLINERS" },
+      { time: "2:00 PM", label: "RECLINERS" },
+      { time: "6:45 PM", label: "RECLINERS", highlight: true },
+      { time: "11:35 PM", label: "RECLINERS" },
+      { time: "7:45 PM", label: "RECLINERS" },
+      { time: "12:35 PM", label: "RECLINERS" },
+    ],
+  },
+  {
+    name: "INOX Forum Mall, Elgin Road, Kolkata",
+    distance: "3.3 km",
+    cancellation: "Allows cancellation",
+    img: inox,
+    timings: [
+      { time: "1:15 PM", label: "RECLINERS" },
+      { time: "4:30 PM", label: "RECLINERS" },
+    ],
+  },
+  {
+    name: "PVR Manisquare, Manisqare Mall, Kolkata",
+    distance: "1.5 km",
+    cancellation: "Non-cancellable",
+    img: pvr,
+    timings: [
+      { time: "10:30 AM", label: "PVR PXL" },
+      { time: "1:45 PM", label: "PVR PXL" },
+      { time: "5:15 PM", label: "PVR PXL" },
+      { time: "11:25 PM", label: "PVR PXL", highlight: true },
+    ],
+  },
+  {
+    name: "INOX South City Mall, South City Mall, Kolkata",
+    distance: "3.5 km",
+    cancellation: "Allows cancellation",
+    img: inox,
+    timings: [
+      { time: "12:00 PM", label: "LASER" },
+      { time: "3:30 PM", label: "LASER" },
+      { time: "6:50 PM", label: "LASER", highlight: true },
+      { time: "11:25 PM", label: "LASER" },
+    ],
+  },
+  {
+    name: "Cinepolis Acropolis Mall, Rajdanga Road, Kolkata",
+    distance: "1.8 km",
+    cancellation: "Non-cancellable",
+    img: cinepolis, // Make sure you have: `import cinepolis from "../assets/cinepolis.png"`
+    timings: [
+      { time: "08:10 PM", label: "DOLBY 7.1" },
+      { time: "11:30 PM", label: "DOLBY 7.1" },
+    ],
   },
 ];

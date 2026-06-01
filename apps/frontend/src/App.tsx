@@ -9,12 +9,14 @@ import "./App.css";
 import RootLayout from "./layouts/RootLayout";
 import Home from "./pages/Home";
 import Movies from "./pages/Movies";
+import MovieDetails from "./pages/MovieDetails";
 
 const routes = createRoutesFromElements(
   <>
     <Route path="/" element={<RootLayout />}>
       <Route index={true} element={<Home />} />
       <Route path="movies" element={<Movies />} />
+      <Route path="movies/:movieId" element={<MovieDetails />} />
     </Route>
   </>,
 );
