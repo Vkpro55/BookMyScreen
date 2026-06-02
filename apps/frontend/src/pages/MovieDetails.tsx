@@ -2,6 +2,7 @@ import m1 from "../assets/m1.avif";
 import { FaShareAlt } from "react-icons/fa";
 import { filters } from "../utils/constants";
 import TheaterTimings from "../components/movies/TheaterTimings";
+import { Icon } from "@repo/ui/icon";
 
 const movie = {
     id: 1,
@@ -75,7 +76,7 @@ function MovieDetails() {
                     {/* Share button */}
                     <div className="absolute top-0 right-0 cursor-pointer">
                         <button className="flex items-center gap-2 cursor-pointer bg-[#3a3a3a] px-4 py-2 rounded text-sm">
-                            <FaShareAlt />
+                            <Icon Icon={FaShareAlt} variant="white" />
                             Share
                         </button>
                     </div>

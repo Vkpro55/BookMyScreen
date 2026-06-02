@@ -1,3 +1,4 @@
+import { Icon } from "@repo/ui/icon";
 import { ordersData } from "../../utils/constants"
 import { MdChair } from "react-icons/md";
 
@@ -24,7 +25,7 @@ function BookingHistory() {
                                                 Quantity: {order.quantity}
                                             </small>
                                             <p className="text-md font-semibold text-gray-700 mt-2">
-                                                <MdChair className="inline items-center mr-2" size={24} />
+                                                <Icon size={24} className="inline items-center mr-2" Icon={MdChair} />
                                                 {order.seats}
                                             </p>
                                         </div>

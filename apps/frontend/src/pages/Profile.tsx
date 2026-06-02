@@ -4,6 +4,7 @@ import { IoMdAdd } from "react-icons/io";
 import { IoIosLogOut } from "react-icons/io";
 import { FiEdit } from "react-icons/fi";
 import BookingHistory from "../components/profile/BookingHistory";
+import { Icon } from "@repo/ui/icon";
 
 function Profile() {
     const [activeTab, setActiveTab] = useState("Your Orders");
@@ -34,13 +35,14 @@ function Profile() {
                             {/* Header */}
                             <div className="bg-linear-to-r from-gray-800 to-rose-500 rounded-t-md px-6 py-6 flex items-center gap-6 text-white">
                                 <div className="relative w-20 h-20 rounded-full border-4 border-white flex items-center justify-center text-gray-600">
-                                    <IoMdAdd size={24} />
+                                    <Icon Icon={IoMdAdd} size={24} />
                                 </div>
 
                                 <div className="ml-2">
                                     <h2 className="text-2xl font-bold">Hi, Vinod Kumar</h2>
                                     <small className="underline cursor-pointer">
-                                        <IoIosLogOut size={20} className="inline mr-1" /> Logout
+                                        <Icon Icon={IoIosLogOut} className="inline mr-1" size={20} variant="white" />
+                                        Logout
                                     </small>
                                 </div>
                             </div>
@@ -56,7 +58,7 @@ function Profile() {
                                                 Verified
                                             </span>
                                         </div>
-                                        <FiEdit className="text-rose-500 cursor-pointer" />
+                                        <Icon Icon={FiEdit} className="text-rose-500 cursor-pointer" />
                                     </div>
                                     <div className="flex justify-between items-center text-sm text-gray-800 mb-3">
                                         <p>Mobile Number</p>
@@ -66,7 +68,7 @@ function Profile() {
                                                 Verified
                                             </span>
                                         </div>
-                                        <FiEdit className="text-rose-500 cursor-pointer" />
+                                        <Icon Icon={FiEdit} className="text-rose-500 cursor-pointer" />
                                     </div>
                                 </div>
                             </div>
