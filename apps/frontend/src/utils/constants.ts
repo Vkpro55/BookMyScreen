@@ -12,6 +12,8 @@ import m7 from "../assets/m7.avif";
 import m8 from "../assets/m8.avif";
 import m9 from "../assets/m9.avif";
 import m10 from "../assets/m10.avif";
+import m11 from "../assets/m11.avif";
+import m12 from "../assets/m12.avif";
 import e1 from "../assets/e1.avif";
 import e2 from "../assets/e2.avif";
 import e3 from "../assets/e3.avif";
@@ -327,3 +329,36 @@ export const theatres = [
 ];
 
 export const tabs = ["Profile", "Your Orders"];
+
+export const ordersData = [
+  {
+    id: "TCAKJAB",
+    title: "Sinners",
+    format: "2D",
+    datetime: "Tue, 29 Apr 2025 | 9:45 PM",
+    cinema: "PVR: Mani Square Mall, Kolkata",
+    quantity: 5,
+    seats: "PE-P9,P10,P11,P12,P13",
+    bookingTime: "Apr 29 2025 07:46PM",
+    paymentMethod: "Credit/Debit Card",
+    poster: m11,
+    total: 607.1,
+    ticket: 495.0,
+    fee: 112.1,
+  },
+  {
+    id: "XYCKAJS",
+    title: "Kesari Chapter 2: The Untold Story of Jallianwala Bagh",
+    format: "2D",
+    datetime: "Sat, 26 Apr 2025 | 2:45 PM",
+    cinema: "Miraj Cinemas: Newtown, Kolkata",
+    quantity: 3,
+    seats: "PE-P9,P10,P11,P12,P13",
+    bookingTime: "Apr 25 2025 04:00PM",
+    paymentMethod: "Credit/Debit Card",
+    poster: m12,
+    total: 607.1,
+    ticket: 495.0,
+    fee: 112.1,
+  },
+];

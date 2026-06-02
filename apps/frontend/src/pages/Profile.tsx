@@ -3,9 +3,10 @@ import { tabs } from "../utils/constants";
 import { IoMdAdd } from "react-icons/io";
 import { IoIosLogOut } from "react-icons/io";
 import { FiEdit } from "react-icons/fi";
+import BookingHistory from "../components/profile/BookingHistory";
 
 function Profile() {
-    const [activeTab] = useState("Profile");
+    const [activeTab, setActiveTab] = useState("Your Orders");
 
     return (
         <>
@@ -14,6 +15,7 @@ function Profile() {
                     {tabs.map((tab, i) => {
                         return (
                             <button
+                                onClick={() => setActiveTab(tab)}
                                 key={i}
                                 className={`cursor-pointer ${activeTab === tab ? "text-rose-500" : "text-gray-600 hover:text-black"}`}
                             >
@@ -138,6 +140,10 @@ function Profile() {
                                 </div>
                             </div>
                         </>
+                    )}
+                    {/* Booking section */}
+                    {activeTab === "Your Orders" && (
+                        <BookingHistory />
                     )}
                 </div>
             </div >
