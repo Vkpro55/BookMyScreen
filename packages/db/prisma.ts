@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config({
   path: "../../packages/db/.env",
 });
+
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
@@ -27,3 +28,5 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 export default prisma;
+
+export type { Prisma, Movie } from "@prisma/client";
