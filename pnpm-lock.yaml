@@ -48,12 +48,18 @@ importers:
       "@repo/typescript-config":
         specifier: workspace:*
         version: link:../../packages/typescript-config
+      "@types/dotenv":
+        specifier: ^8.2.3
+        version: 8.2.3
       "@types/eslint-plugin-promise":
         specifier: ^7.3.0
         version: 7.3.0
       "@types/node":
         specifier: ^22.15.3
         version: 22.19.19
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
       eslint:
         specifier: ^9.39.1
         version: 9.39.4(jiti@2.7.0)
@@ -1452,6 +1458,13 @@ packages:
       {
         integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==,
       }
+
+  "@types/dotenv@8.2.3":
+    resolution:
+      {
+        integrity: sha512-g2FXjlDX/cYuc5CiQvyU/6kkbP1JtmGzh0obW50zD7OKeILVL0NSpPWLXVfqoAGQjom2/SLLx9zHq0KXvD6mbw==,
+      }
+    deprecated: This is a stub types definition. dotenv provides its own type definitions, so you do not need this installed.
 
   "@types/eslint-plugin-promise@7.3.0":
     resolution:
@@ -5508,6 +5521,10 @@ snapshots:
   "@types/connect@3.4.38":
     dependencies:
       "@types/node": 22.19.19
+
+  "@types/dotenv@8.2.3":
+    dependencies:
+      dotenv: 17.4.2
 
   "@types/eslint-plugin-promise@7.3.0":
     dependencies:

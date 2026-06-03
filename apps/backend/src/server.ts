@@ -1,6 +1,10 @@
 import app from "./app.js";
-import http from "http";
+import { config } from "./config/config.js";
 
-const httpserver = http.createServer(app);
+function startServer() {
+  const port = config.port;
 
-httpserver.listen(4000, "0.0.0.0");
+  app.listen(port, "0.0.0.0");
+}
+
+startServer();
