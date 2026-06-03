@@ -6,7 +6,10 @@
   "types": "dist/prisma.d.ts",
   "type": "module",
   "exports": {
-    "./client": "./dist/prisma.js"
+    "./client": {
+      "types": "./dist/prisma.d.ts",
+      "default": "./dist/prisma.js"
+    }
   },
   "scripts": {
     "build": "pnpm exec tsc -b"

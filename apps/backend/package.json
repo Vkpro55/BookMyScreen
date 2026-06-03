@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "pnpm exec tsc -b",
-    "dev": "node dist/src/index.js",
-    "start": "node dist/src/index.js",
+    "dev": "node dist/src/server.js",
+    "start": "node dist/src/server.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
