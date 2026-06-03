@@ -8,7 +8,7 @@ export const MovieSchema = z.object({
   description: z.string().min(1, "Description is required"),
   duration: z.string().min(1, "Duration is required"),
   genre: z.array(z.string()).nonempty("At least one genre is required"),
-  releaseDate: z.date(), // or z.string().transform(val => new Date(val)) if input is string
+  releaseDate: z.string().transform((val) => new Date(val)),
   languages: z.array(z.string()).nonempty("At least one language is required"),
   certification: z.string().min(1, "Certification is required"),
   posterUrl: z.url("Poster must be a valid URL"),
