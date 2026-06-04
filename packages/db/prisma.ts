@@ -29,4 +29,4 @@ if (process.env.NODE_ENV !== "production") {
 
 export default prisma;
 
-export type { Prisma, Movie } from "@prisma/client";
+export type { Prisma, Movie, Theater, MovieTheater } from "@prisma/client";

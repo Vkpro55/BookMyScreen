@@ -1,9 +1,8 @@
 import prisma from "@repo/db/client";
-import type { Prisma, Movie } from "@repo/db/client";
+import type { Movie } from "@repo/db/client";
+import type { MovieInput } from "./movie.types.js";
 
-export const createMovie = async (
-  movie: Prisma.MovieCreateInput,
-): Promise<Movie> => {
+export const createMovie = async (movie: MovieInput): Promise<Movie> => {
   return await prisma.movie.create({ data: movie });
 };
 

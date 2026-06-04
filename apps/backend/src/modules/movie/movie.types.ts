@@ -1,7 +1,6 @@
-import type { Movie } from "@repo/db/client";
 import { z } from "zod";
 
-export type CreateMovieDto = Omit<Movie, "id" | "createdAt" | "updatedAt">;
+// export type CreateMovieDto = Omit<Movie, "id" | "createdAt" | "updatedAt">;
 
 export const MovieSchema = z.object({
   title: z.string().min(1, "Title is required"),

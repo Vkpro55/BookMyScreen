@@ -23,5 +23,34 @@ model Movie {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  theatres MovieTheater[]
+
   @@map("movies")
+}
+
+model Theater {
+  id       String @id @default(cuid())
+  name     String
+  location String
+  logo     String
+  city     String
+  state    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  movies MovieTheater[]
+
+  @@map("theaters")
+}
+
+model MovieTheater {
+  movieId   String
+  theaterId String
+
+  movie   Movie   @relation(fields: [movieId], references: [id])
+  theater Theater @relation(fields: [theaterId], references: [id])
+
+  @@id([movieId, theaterId])
+  @@map("movie_theaters")
 }
