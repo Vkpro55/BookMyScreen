@@ -26,5 +26,10 @@ jobs:
       - name: Install pnpm dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate the prisma client and db build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: pnpm run db:generate && pnpm run db:build
+
       - name: Run Lint
         run: pnpm turbo run lint
