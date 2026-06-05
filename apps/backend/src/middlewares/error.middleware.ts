@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 import type { ApiResponse, IError } from "../types/response.types.js";
 
@@ -6,9 +6,12 @@ export const globalErrorHandler = (
   err: unknown,
   req: Request,
   res: Response,
+  _next: NextFunction,
 ) => {
   let statusCode = 500;
-  let errors: IError | IError[] = { message: "Something went wrong" };
+  let errors: IError | IError[] = {
+    message: "Something went wrong",
+  };
 
   if (err instanceof ZodError) {
     statusCode = 400;
@@ -17,7 +20,9 @@ export const globalErrorHandler = (
       message: issue.message,
     }));
   } else if (err instanceof Error) {
-    errors = { message: err.message };
+    errors = {
+      message: err.message,
+    };
   }
 
   const response: ApiResponse<null> = {
@@ -25,5 +30,5 @@ export const globalErrorHandler = (
     errors,
   };
 
-  return res.status(statusCode).json(response);
+  res.status(statusCode).json(response);
 };
