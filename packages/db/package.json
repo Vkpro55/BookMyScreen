@@ -12,7 +12,8 @@
     }
   },
   "scripts": {
-    "build": "pnpm exec tsc -b"
+    "build": "pnpm exec tsc -b",
+    "seed": "pnpm exec tsx prisma/seed.ts"
   },
   "keywords": [],
   "author": "",

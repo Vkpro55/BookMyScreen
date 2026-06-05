@@ -6,6 +6,6 @@
 
     "target": "esnext"
   },
-  "include": ["prisma.ts", "prisma.config.ts"],
+  "include": ["prisma.ts", "prisma.config.ts", "prisma/seed.ts"],
   "exclude": ["node_modules"]
 }
