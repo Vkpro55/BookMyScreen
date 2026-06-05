@@ -10,21 +10,22 @@ model Movie {
   id            String   @id @default(cuid())
   title         String
   description   String
-  duration      String
+  duration      Int
   genre         String[]
   releaseDate   DateTime
   languages     String[]
   certification String
   posterUrl     String
-  rating        Float
-  votes         Int
-  format        String[] @default(["2D"])
+
+  rating Float
+  votes  Int
+
+  format Format?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  theatres MovieTheater[]
-  shows    Show[]
+  shows Show[]
 
   @@map("movies")
 }
@@ -32,29 +33,101 @@ model Movie {
 model Theater {
   id       String @id @default(cuid())
   name     String
-  location String
-  logo     String
   city     String
   state    String
+  location String
+  logo     String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  movies MovieTheater[]
-  shows  Show[]
+  screens Screen[]
 
   @@map("theaters")
 }
 
-model MovieTheater {
-  movieId   String
+model Screen {
+  id        String @id @default(cuid())
+  name      String
   theaterId String
 
-  movie   Movie   @relation(fields: [movieId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   theater Theater @relation(fields: [theaterId], references: [id])
 
-  @@id([movieId, theaterId])
-  @@map("movie_theaters")
+  rows  Row[]
+  shows Show[]
+
+  @@map("screens")
+}
+
+model Row {
+  id       String @id @default(cuid())
+  label    String
+  screenId String
+
+  screen Screen @relation(fields: [screenId], references: [id])
+
+  seats Seat[]
+
+  @@unique([screenId, label])
+  @@map("rows")
+}
+
+model Seat {
+  id     String @id @default(cuid())
+  number Int
+  rowId  String
+
+  row Row @relation(fields: [rowId], references: [id])
+
+  showSeats ShowSeat[]
+
+  @@unique([rowId, number])
+  @@map("seats")
+}
+
+model Show {
+  id String @id @default(cuid())
+
+  movieId  String
+  screenId String
+
+  startTime DateTime
+
+  format    Format
+  audioType String? @default("Dolby Atmos")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  movie  Movie  @relation(fields: [movieId], references: [id])
+  screen Screen @relation(fields: [screenId], references: [id])
+
+  showSeats ShowSeat[]
+
+  @@index([movieId])
+  @@index([screenId])
+  @@index([startTime])
+  @@map("shows")
+}
+
+model ShowSeat {
+  id String @id @default(cuid())
+
+  showId String
+  seatId String
+
+  status SeatStatus @default(AVAILABLE)
+
+  price Decimal @db.Decimal(10, 2)
+
+  show Show @relation(fields: [showId], references: [id])
+  seat Seat @relation(fields: [seatId], references: [id])
+
+  @@unique([showId, seatId])
+  @@map("show_seats")
 }
 
 enum Format {
@@ -68,54 +141,4 @@ enum SeatStatus {
   AVAILABLE
   BOOKED
   BLOCKED
-}
-
-model Show {
-  id        String   @id @default(cuid())
-  movieId   String
-  theaterId String
-  location  String
-  format    Format
-  audioType String?  @default("Dolby Atmos")
-  startTime DateTime
-  date      DateTime
-  priceMap  Json
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  movie   Movie   @relation(fields: [movieId], references: [id])
-  theater Theater @relation(fields: [theaterId], references: [id])
-  rows    Row[]
-
-  @@map("shows")
-}
-
-model Row {
-  id     String @id @default(cuid())
-  row    String
-  showId String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  show  Show   @relation(fields: [showId], references: [id])
-  seats Seat[]
-
-  @@map("rows")
-}
-
-model Seat {
-  id     String     @id @default(cuid())
-  number Int
-  status SeatStatus
-  rowId  String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  row Row @relation(fields: [rowId], references: [id])
-
-  @@unique([rowId, number]) // ensures seat number is unique within a row
-  @@map("seats")
 }
