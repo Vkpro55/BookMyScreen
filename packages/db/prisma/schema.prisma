@@ -24,6 +24,7 @@ model Movie {
   updatedAt DateTime @updatedAt
 
   theatres MovieTheater[]
+  shows    Show[]
 
   @@map("movies")
 }
@@ -40,6 +41,7 @@ model Theater {
   updatedAt DateTime @updatedAt
 
   movies MovieTheater[]
+  shows  Show[]
 
   @@map("theaters")
 }
@@ -53,4 +55,67 @@ model MovieTheater {
 
   @@id([movieId, theaterId])
   @@map("movie_theaters")
+}
+
+enum Format {
+  TWO_D
+  THREE_D
+  IMAX
+  PVR_PXL
+}
+
+enum SeatStatus {
+  AVAILABLE
+  BOOKED
+  BLOCKED
+}
+
+model Show {
+  id        String   @id @default(cuid())
+  movieId   String
+  theaterId String
+  location  String
+  format    Format
+  audioType String?  @default("Dolby Atmos")
+  startTime DateTime
+  date      DateTime
+  priceMap  Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  movie   Movie   @relation(fields: [movieId], references: [id])
+  theater Theater @relation(fields: [theaterId], references: [id])
+  rows    Row[]
+
+  @@map("shows")
+}
+
+model Row {
+  id     String @id @default(cuid())
+  row    String
+  showId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  show  Show   @relation(fields: [showId], references: [id])
+  seats Seat[]
+
+  @@map("rows")
+}
+
+model Seat {
+  id     String     @id @default(cuid())
+  number Int
+  status SeatStatus
+  rowId  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  row Row @relation(fields: [rowId], references: [id])
+
+  @@unique([rowId, number]) // ensures seat number is unique within a row
+  @@map("seats")
 }
