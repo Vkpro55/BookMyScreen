@@ -1,17 +1,15 @@
-import type { MovieInput } from "../modules/movie/movie.types.js";
-
-import type { TheaterInput } from "../modules/theatre/theater.types.js";
+import type { Format, Movie, Theater } from "@repo/db/client";
 
 export interface GroupedShow {
-  movie: string | MovieInput;
+  movie: Movie;
   theater: {
-    theaterDetails: string | TheaterInput;
+    theaterDetails: Theater;
     shows: {
       id: string;
-      date: string;
       startTime: string;
-      format: string;
+      format: Format;
       audioType: string;
+      screenName: string;
     }[];
   };
 }

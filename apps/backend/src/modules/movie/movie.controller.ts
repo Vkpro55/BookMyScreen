@@ -59,7 +59,7 @@ export const getMovieById = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): Promise<void> => {
+) => {
   try {
     const result = MovieTypes.MovieParamsSchema.safeParse(req.params);
 
@@ -103,9 +103,9 @@ export const getTopMoviesByVotes = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): Promise<void> => {
+) => {
   try {
-    const result = MovieTypes.MovieParamsSchema.safeParse(req.params);
+    const result = MovieTypes.MovieRecommendedQuerySchema.safeParse(req.query);
 
     if (!result.success) {
       const errors: IError[] = result.error.issues.map((issue) => ({
@@ -129,6 +129,64 @@ export const getTopMoviesByVotes = async (
       data: movies,
     };
     res.status(200).json(response);
+    return;
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMovieShows = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const paramsResult = MovieTypes.MovieParamsSchema.safeParse(req.params);
+    const queryResult = MovieTypes.MovieShowsQuerySchema.safeParse(req.query);
+
+    if (!paramsResult.success) {
+      const errors: IError[] = paramsResult.error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+      }));
+
+      const response: ApiResponse<null> = {
+        success: false,
+        errors,
+      };
+      res.status(400).json(response);
+      return;
+    }
+
+    if (!queryResult.success) {
+      const errors: IError[] = queryResult.error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+      }));
+
+      const response: ApiResponse<null> = {
+        success: false,
+        errors,
+      };
+      res.status(400).json(response);
+      return;
+    }
+
+    const { id } = paramsResult.data;
+    const { city, date } = queryResult.data;
+
+    const movieShows = await MovieService.getMovieShowsByCityAndDate(
+      id,
+      city,
+      date,
+    );
+
+    const response: ApiResponse<typeof movieShows> = {
+      success: true,
+      data: movieShows,
+    };
+    res.status(200).json(response);
+    return;
   } catch (error) {
     next(error);
   }

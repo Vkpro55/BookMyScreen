@@ -26,25 +26,45 @@ export const createShow = async (
     }
 
     const show = await ShowService.createShow(result.data);
+
+    if (!show) {
+      const response: ApiResponse<null> = {
+        success: false,
+        errors: { message: "Movie or screen not found" },
+      };
+      res.status(404).json(response);
+      return;
+    }
+
     const response: ApiResponse<typeof show> = {
       success: true,
       data: show,
     };
 
     res.status(201).json(response);
-    return;
   } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message.startsWith("Price missing for row label")
+    ) {
+      const response: ApiResponse<null> = {
+        success: false,
+        errors: { message: error.message },
+      };
+      res.status(400).json(response);
+      return;
+    }
     next(error);
   }
 };
 
-export const getShowsByMovieDateLocation = async (
+export const getShowsByMovieCityAndDate = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const result = ShowTypes.ShowParamsSchem.safeParse(req.params);
+    const result = ShowTypes.ShowListQuerySchema.safeParse(req.query);
 
     if (!result.success) {
       const errors: IError[] = result.error.issues.map((issue) => ({
@@ -60,11 +80,11 @@ export const getShowsByMovieDateLocation = async (
       return;
     }
 
-    const { movieId, location, date } = result.data;
+    const { movieId, city, date } = result.data;
 
-    const shows = await ShowService.getShowsByMovieDateLocation(
+    const shows = await ShowService.getShowsByMovieCityAndDate(
       movieId,
-      location,
+      city,
       date,
     );
 
@@ -73,8 +93,7 @@ export const getShowsByMovieDateLocation = async (
       data: shows,
     };
 
-    res.status(201).json(response);
-    return;
+    res.status(200).json(response);
   } catch (error) {
     next(error);
   }
@@ -86,7 +105,7 @@ export const getShowById = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const result = ShowTypes.ShowParamsSchem.safeParse(req.params);
+    const result = ShowTypes.ShowParamsSchema.safeParse(req.params);
 
     if (!result.success) {
       const errors: IError[] = result.error.issues.map((issue) => ({
@@ -107,7 +126,12 @@ export const getShowById = async (
     const show = await ShowService.getShowById(id);
 
     if (!show) {
-      throw new Error("Show not found");
+      const response: ApiResponse<null> = {
+        success: false,
+        errors: { message: "Show not found" },
+      };
+      res.status(404).json(response);
+      return;
     }
 
     const response: ApiResponse<typeof show> = {
@@ -116,7 +140,6 @@ export const getShowById = async (
     };
 
     res.status(200).json(response);
-    return;
   } catch (error) {
     next(error);
   }
@@ -128,7 +151,7 @@ export const updateSeatStatus = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const result = ShowTypes.ShowQuerySchema.safeParse(req.query);
+    const result = ShowTypes.UpdateSeatStatusSchema.safeParse(req.body);
 
     if (!result.success) {
       const errors: IError[] = result.error.issues.map((issue) => ({
@@ -144,22 +167,29 @@ export const updateSeatStatus = async (
       return;
     }
 
-    const { showId, rowId, seatNumber, status } = result.data;
+    const { showId, seatId, status } = result.data;
 
-    const updatedShow = await ShowService.updateSeatStatus(
+    const updatedSeat = await ShowService.updateSeatStatus(
       showId,
-      rowId,
-      seatNumber,
+      seatId,
       status,
     );
 
-    const response: ApiResponse<typeof updatedShow> = {
+    if (!updatedSeat) {
+      const response: ApiResponse<null> = {
+        success: false,
+        errors: { message: "Show seat not found" },
+      };
+      res.status(404).json(response);
+      return;
+    }
+
+    const response: ApiResponse<typeof updatedSeat> = {
       success: true,
-      data: updatedShow,
+      data: updatedSeat,
     };
 
     res.status(200).json(response);
-    return;
   } catch (error) {
     next(error);
   }

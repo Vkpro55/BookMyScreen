@@ -33,10 +33,11 @@ export type {
   Prisma,
   Movie,
   Theater,
-  MovieTheater,
+  Screen,
   Show,
   Row,
   Seat,
-  Format,
-  SeatStatus,
+  ShowSeat,
 } from "@prisma/client";
+
+export { Format, SeatStatus } from "@prisma/client";
