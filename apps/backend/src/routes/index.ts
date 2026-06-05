@@ -8,6 +8,6 @@ const router: Router = express.Router();
 
 router.use("/movies", movieRouter);
 router.use("/theaters", theaterRouter);
-router.use("shows", showRouter);
+router.use("/shows", showRouter);
 
 export default router;
