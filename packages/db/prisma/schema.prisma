@@ -99,6 +99,8 @@ model Show {
   format    Format
   audioType String? @default("Dolby Atmos")
 
+  priceMap Json
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -120,8 +122,6 @@ model ShowSeat {
   seatId String
 
   status SeatStatus @default(AVAILABLE)
-
-  price Decimal @db.Decimal(10, 2)
 
   show Show @relation(fields: [showId], references: [id])
   seat Seat @relation(fields: [seatId], references: [id])

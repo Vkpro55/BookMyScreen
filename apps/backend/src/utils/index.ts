@@ -1,6 +1,18 @@
 import type { ShowWithTheaterAndMovie } from "../modules/show/show.types.js";
 import type { GroupedShow } from "../types/groupedshows.types.js";
 
+const getMinPrice = (priceMap: unknown): number => {
+  if (!priceMap || typeof priceMap !== "object" || Array.isArray(priceMap)) {
+    return 0;
+  }
+
+  const prices = Object.values(priceMap as Record<string, unknown>).filter(
+    (value): value is number => typeof value === "number",
+  );
+
+  return prices.length > 0 ? Math.min(...prices) : 0;
+};
+
 export const groupShowsByTheaterAndMovie = (
   shows: ShowWithTheaterAndMovie[],
 ): GroupedShow[] => {
@@ -21,6 +33,7 @@ export const groupShowsByTheaterAndMovie = (
       format: show.format,
       audioType: show.audioType ?? "",
       screenName: show.screen.name,
+      minPrice: getMinPrice(show.priceMap),
     });
   });
 

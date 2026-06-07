@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Prisma } from "@repo/db/client";
+import type { Prisma, SeatStatus } from "@repo/db/client";
 
 const FormatEnum = z.enum(["TWO_D", "THREE_D", "IMAX", "PVR_PXL"]);
 const SeatStatusEnum = z.enum(["AVAILABLE", "BOOKED", "BLOCKED"]);
@@ -55,6 +55,7 @@ export type ShowWithDetails = Prisma.ShowGetPayload<{
     screen: {
       include: {
         theater: true;
+        rows: true; // ← add this
       };
     };
     showSeats: {
@@ -68,3 +69,28 @@ export type ShowWithDetails = Prisma.ShowGetPayload<{
     };
   };
 }>;
+
+export interface ShowRowWithSeats {
+  label: string;
+  price: number;
+  seats: {
+    id: string;
+    number: number;
+    status: SeatStatus;
+  }[];
+}
+
+export interface ShowBookingDetails {
+  id: string;
+  startTime: Date;
+  format: ShowWithDetails["format"];
+  audioType: string | null;
+  priceMap: Record<string, number>;
+  movie: ShowWithDetails["movie"];
+  screen: {
+    id: string;
+    name: string;
+    theater: ShowWithDetails["screen"]["theater"];
+  };
+  rows: ShowRowWithSeats[];
+}

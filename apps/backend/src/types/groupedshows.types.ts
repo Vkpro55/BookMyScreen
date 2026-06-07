@@ -10,6 +10,7 @@ export interface GroupedShow {
       format: Format;
       audioType: string;
       screenName: string;
+      minPrice: number; // Math.min(...Object.values(priceMap))
     }[];
   };
 }

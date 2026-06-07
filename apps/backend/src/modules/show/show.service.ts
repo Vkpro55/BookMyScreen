@@ -1,13 +1,22 @@
 import { SeatStatus } from "@repo/db/client";
 import prisma from "@repo/db/client";
-import type { ShowInput, ShowWithDetails } from "./show.types.js";
+import type {
+  ShowInput,
+  ShowWithDetails,
+  ShowBookingDetails,
+} from "./show.types.js";
 import { groupShowsByTheaterAndMovie } from "../../utils/index.js";
 import type { GroupedShow } from "../../types/groupedshows.types.js";
 
 const showDetailsInclude = {
   movie: true,
   screen: {
-    include: { theater: true },
+    include: {
+      theater: true,
+      rows: {
+        orderBy: { label: "asc" },
+      },
+    },
   },
   showSeats: {
     include: {
@@ -17,6 +26,44 @@ const showDetailsInclude = {
     },
   },
 } as const;
+
+const toShowBookingDetails = (show: ShowWithDetails): ShowBookingDetails => {
+  const priceMap = show.priceMap as Record<string, number>;
+  const rows = show.screen.rows.map((row) => {
+    const price = priceMap[row.label];
+  
+    if (price === undefined) {
+      throw new Error(`Price missing for row label: ${row.label}`);
+    }
+  
+    return {
+      label: row.label,
+      price,  // now TypeScript knows this is number
+      seats: show.showSeats
+        .filter((ss) => ss.seat.rowId === row.id)
+        .map((ss) => ({
+          id: ss.seat.id,
+          number: ss.seat.number,
+          status: ss.status,
+        }))
+        .sort((a, b) => a.number - b.number),
+    };
+  });
+  return {
+    id: show.id,
+    startTime: show.startTime,
+    format: show.format,
+    audioType: show.audioType,
+    priceMap,
+    movie: show.movie,
+    screen: {
+      id: show.screen.id,
+      name: show.screen.name,
+      theater: show.screen.theater,
+    },
+    rows,
+  };
+};
 
 export const createShow = async (
   show: ShowInput,
@@ -51,6 +98,7 @@ export const createShow = async (
         startTime: show.startTime,
         format: show.format,
         audioType: show.audioType,
+        priceMap: show.priceMap,
       },
     });
 
@@ -64,7 +112,6 @@ export const createShow = async (
       return row.seats.map((seat) => ({
         showId: createdShow.id,
         seatId: seat.id,
-        price,
         status: SeatStatus.AVAILABLE,
       }));
     });
@@ -117,11 +164,13 @@ export const getShowsByMovieCityAndDate = async (
 
 export const getShowById = async (
   id: string,
-): Promise<ShowWithDetails | null> => {
-  return prisma.show.findUnique({
+): Promise<ShowBookingDetails | null> => {
+  const show = await prisma.show.findUnique({
     where: { id },
     include: showDetailsInclude,
   });
+  if (!show) return null;
+  return toShowBookingDetails(show);
 };
 
 export const updateSeatStatus = async (

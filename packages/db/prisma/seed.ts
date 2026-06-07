@@ -2,6 +2,13 @@ import prisma, { Format, SeatStatus } from "../prisma.js";
 
 /* eslint-disable no-console */
 
+const rowPriceMap: Record<string, number> = {
+  A: 270,
+  B: 290,
+  C: 400,
+  D: 510,
+};
+
 // Helper to convert duration string "2h 15m" to minutes
 const parseDuration = (durationStr: string): number => {
   const durationRegex = /(\d+)h\s*(?:(\d+)m)?/;
@@ -10,31 +17,6 @@ const parseDuration = (durationStr: string): number => {
   const hours = parseInt(match[1] ?? "0", 10);
   const minutes = match[2] ? parseInt(match[2], 10) : 0;
   return hours * 60 + minutes;
-};
-
-// Helper to generate seat categories and pricing
-const generateSeatCategories = (
-  totalSeats: number,
-): Record<number, { category: string; price: number }> => {
-  const categories: Record<number, { category: string; price: number }> = {};
-  const premiumCount = Math.floor(totalSeats * 0.2); // 20% premium
-  const executiveCount = Math.floor(totalSeats * 0.4); // 40% executive
-  let seatNum = 1;
-
-  // Premium seats (back rows)
-  for (let i = 0; i < premiumCount; i++) {
-    categories[seatNum++] = { category: "PREMIUM", price: 510 };
-  }
-  // Executive seats (middle)
-  for (let i = 0; i < executiveCount; i++) {
-    categories[seatNum++] = { category: "EXECUTIVE", price: 290 };
-  }
-  // Normal seats (front)
-  while (seatNum <= totalSeats) {
-    categories[seatNum++] = { category: "NORMAL", price: 270 };
-  }
-
-  return categories;
 };
 
 async function main(): Promise<void> {
@@ -322,6 +304,7 @@ async function main(): Promise<void> {
     startTime: Date;
     format: Format;
     audioType: string;
+    priceMap: Record<string, number>;
   }[] = [];
   const formats: Format[] = [
     Format.TWO_D,
@@ -357,6 +340,7 @@ async function main(): Promise<void> {
               startTime: showDate,
               format: selectedFormat,
               audioType: Math.random() > 0.5 ? "Dolby Atmos" : "Stereo",
+              priceMap: rowPriceMap,
             });
           }
         }
@@ -378,17 +362,10 @@ async function main(): Promise<void> {
     showId: string;
     seatId: string;
     status: SeatStatus;
-    price: string;
   }[] = [];
-  const totalSeatsPerScreen = rowLabels.length * seatsPerRow;
-  const seatCategories = generateSeatCategories(totalSeatsPerScreen);
 
   for (const show of showsData) {
     for (const seat of seatsData) {
-      const category = seatCategories[seat.number] ?? {
-        category: "NORMAL",
-        price: 270,
-      };
       const status =
         Math.random() > 0.7
           ? SeatStatus.BOOKED
@@ -401,7 +378,6 @@ async function main(): Promise<void> {
         showId: show.id,
         seatId: seat.id,
         status,
-        price: category.price.toFixed(2),
       });
     }
   }
