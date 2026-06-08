@@ -31,14 +31,14 @@ const toShowBookingDetails = (show: ShowWithDetails): ShowBookingDetails => {
   const priceMap = show.priceMap as Record<string, number>;
   const rows = show.screen.rows.map((row) => {
     const price = priceMap[row.label];
-  
+
     if (price === undefined) {
       throw new Error(`Price missing for row label: ${row.label}`);
     }
-  
+
     return {
       label: row.label,
-      price,  // now TypeScript knows this is number
+      price,
       seats: show.showSeats
         .filter((ss) => ss.seat.rowId === row.id)
         .map((ss) => ({
