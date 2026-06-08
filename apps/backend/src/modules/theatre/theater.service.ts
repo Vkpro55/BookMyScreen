@@ -61,9 +61,6 @@ export const createScreen = async (
   theaterId: string,
   screen: ScreenInput,
 ): Promise<ScreenWithLayout> => {
-  const theater = await prisma.theater.findUnique({ where: { id: theaterId } });
-  if (!theater) throw new Error("Theater not found");
-
   return prisma.screen.create({
     data: {
       name: screen.name,
