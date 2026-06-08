@@ -20,33 +20,3 @@ export const getTopMoviesByVotes = async (limit: number): Promise<Movie[]> => {
     take: limit,
   });
 };
-
-// New — powers MovieDetails / TheaterTimings
-export const getMovieShowsByCityAndDate = async (
-  movieId: string,
-  city: string,
-  date: Date,
-) => {
-  const startOfDay = new Date(date);
-  startOfDay.setHours(0, 0, 0, 0);
-
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 999);
-
-  return prisma.show.findMany({
-    where: {
-      movieId,
-      startTime: { gte: startOfDay, lte: endOfDay },
-      screen: {
-        theater: { city: { equals: city, mode: "insensitive" } },
-      },
-    },
-    include: {
-      movie: true,
-      screen: {
-        include: { theater: true },
-      },
-    },
-    orderBy: { startTime: "asc" },
-  });
-};
