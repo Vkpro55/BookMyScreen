@@ -196,29 +196,19 @@ async function main(): Promise<void> {
   // Real theaters data
   const cities = [
     {
-      name: "Mumbai",
-      state: "Maharashtra",
-      areas: ["Andheri", "Bandra", "Powai", "Borivali"],
-    },
-    {
       name: "Delhi",
       state: "Delhi",
-      areas: ["Connaught Place", "Saket", "Dwarka", "Karol Bagh"],
+      areas: ["Connaught Place", "Saket"],
     },
     {
-      name: "Bangalore",
-      state: "Karnataka",
-      areas: ["Whitefield", "Koramangala", "Indiranagar", "Marathahalli"],
+      name: "Mumbai",
+      state: "Maharashtra",
+      areas: ["Andheri", "Bandra"],
     },
     {
-      name: "Hyderabad",
-      state: "Telangana",
-      areas: ["Banjara Hills", "Gachibowli", "Madhapur", "Ameerpet"],
-    },
-    {
-      name: "Kolkata",
-      state: "West Bengal",
-      areas: ["Salt Lake", "New Town", "Park Street", "Gariahat"],
+      name: "Chandigarh",
+      state: "Punjab",
+      areas: ["Sector 17", "Mohali"],
     },
   ];
 
@@ -241,7 +231,7 @@ async function main(): Promise<void> {
   const screensByTheater: Record<string, string[]> = {};
 
   for (const city of cities) {
-    const numTheatres = 2; // 2 theaters per city for demo
+    const numTheatres = 1;
     for (let i = 0; i < numTheatres; i++) {
       const brand = brands[i % brands.length];
       const area = city.areas[i % city.areas.length] ?? "Central";
@@ -259,7 +249,7 @@ async function main(): Promise<void> {
 
       // Create 3 screens per theater
       screensByTheater[theaterId] = [];
-      for (let s = 0; s < 3; s++) {
+      for (let s = 0; s < 2; s++) {
         screensByTheater[theaterId].push(`screen_${theaterId}_${s + 1}`);
       }
     }
@@ -276,7 +266,7 @@ async function main(): Promise<void> {
 
   // Generate rows (A, B, C, D) and seats for each screen
   const rowLabels = ["A", "B", "C", "D"];
-  const seatsPerRow = 10;
+  const seatsPerRow = 6;
   const rowsData = screensData.flatMap((screen) =>
     rowLabels.map((label) => ({
       id: `row_${screen.id}_${label}`,
@@ -294,7 +284,7 @@ async function main(): Promise<void> {
   );
 
   // Time slots for shows
-  const timeSlots = ["09:00", "12:30", "16:00", "19:00", "22:00"];
+  const timeSlots = ["10:00", "18:00"];
 
   // Generate shows
   const showsData: {
@@ -314,7 +304,7 @@ async function main(): Promise<void> {
   ];
   let showCounter = 0;
 
-  for (const movie of moviesData.slice(0, 5)) {
+  for (const movie of moviesData.slice(0, 3)) {
     // Use first 5 movies for demo
     for (const theater of theatersData) {
       const theaterScreens = screensByTheater[theater.id];
@@ -357,6 +347,24 @@ async function main(): Promise<void> {
   await prisma.show.createMany({ data: showsData });
 
   // Generate show seats with proper pricing
+  const rowsByScreen = new Map<string, string[]>();
+
+  for (const row of rowsData) {
+    const rows = rowsByScreen.get(row.screenId) ?? [];
+    rows.push(row.id);
+    rowsByScreen.set(row.screenId, rows);
+  }
+
+  const seatsByScreen = new Map<string, typeof seatsData>();
+
+  for (const screen of screensData) {
+    const rowIds = rowsByScreen.get(screen.id) ?? [];
+
+    const screenSeats = seatsData.filter((seat) => rowIds.includes(seat.rowId));
+
+    seatsByScreen.set(screen.id, screenSeats);
+  }
+
   const showSeatEntries: {
     id: string;
     showId: string;
@@ -365,7 +373,9 @@ async function main(): Promise<void> {
   }[] = [];
 
   for (const show of showsData) {
-    for (const seat of seatsData) {
+    const screenSeats = seatsByScreen.get(show.screenId) ?? [];
+
+    for (const seat of screenSeats) {
       const status =
         Math.random() > 0.7
           ? SeatStatus.BOOKED
@@ -382,7 +392,13 @@ async function main(): Promise<void> {
     }
   }
 
-  await prisma.showSeat.createMany({ data: showSeatEntries });
+  const BATCH_SIZE = 1000;
+
+  for (let i = 0; i < showSeatEntries.length; i += BATCH_SIZE) {
+    await prisma.showSeat.createMany({
+      data: showSeatEntries.slice(i, i + BATCH_SIZE),
+    });
+  }
 
   // Log statistics
   const finalCounts = await Promise.all([

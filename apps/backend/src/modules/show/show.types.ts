@@ -21,7 +21,8 @@ export const ShowSchema = z.object({
 export type ShowInput = z.infer<typeof ShowSchema>;
 
 export const ShowParamsSchema = z.object({
-  id: z.cuid2("Invalid show ID"),
+  // id: z.cuid2("Invalid show ID"),
+  id: z.string(),
 });
 
 export const ShowListQuerySchema = z.object({

@@ -133,7 +133,7 @@ export const createShow = async (
 
 export const getShowsByMovieCityAndDate = async (
   movieId: string,
-  city: string,
+  state: string,
   date: Date,
 ): Promise<GroupedShow[]> => {
   const startOfDay = new Date(date);
@@ -147,7 +147,7 @@ export const getShowsByMovieCityAndDate = async (
       movieId,
       startTime: { gte: startOfDay, lte: endOfDay },
       screen: {
-        theater: { city: { equals: city, mode: "insensitive" } },
+        theater: { state: { equals: state, mode: "insensitive" } },
       },
     },
     include: {
