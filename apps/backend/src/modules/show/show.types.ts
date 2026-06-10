@@ -25,7 +25,8 @@ export const ShowParamsSchema = z.object({
 });
 
 export const ShowListQuerySchema = z.object({
-  movieId: z.cuid2("Invalid movie ID"),
+  // movieId: z.cuid2("Invalid movie ID"),
+  movieId: z.string().min(1, "Movie ID is required"),
   city: z.string().min(1, "City is required"),
   date: z.string().transform((val) => new Date(val)),
 });

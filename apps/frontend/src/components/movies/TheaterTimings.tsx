@@ -1,13 +1,25 @@
 import dayjs from "dayjs";
 import { useState } from "react";
-import { theatres } from "../../utils/constants";
+import { useLocation } from "../../context/LocationContext";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { getShowsByMovieCityAndDate } from "../../api";
 
-function TheaterTimings() {
+function TheaterTimings({ movideId }: { movideId: string }) {
+
+    const { location } = useLocation();
+
     const today = dayjs();
     const [selectedData, setSelectedDate] = useState(today);
-    // const formattedDate = selectedData.format("DD-MM-YY");
+    const formattedDate = selectedData.format("YYYY-MM-DD");
 
     const next7days = Array.from({ length: 7 }, (_, i) => today.add(i, "day"));
+
+    const { data } = useQuery({
+        queryKey: ["show", movideId, location, formattedDate],
+        queryFn: () => getShowsByMovieCityAndDate(movideId, location, formattedDate),
+        placeholderData: keepPreviousData
+    });
+
     return (
         <>
             <hr className="my-2 border-gray-200" />
@@ -30,24 +42,31 @@ function TheaterTimings() {
 
             {/* Theater */}
             <div className="px-4 mb-10 space-y-8">
-                {theatres.map((theatre, index) => {
+                {
+                    data?.length === 0 && (
+                        <div className="text-center text-gray-500">
+                            No shows available for selected date
+                        </div>
+                    )
+                }
+                {data?.map((curr, index) => {
                     return <>
                         <div key={index} className="flex items-start gap-3 mb-2">
-                            <img src={theatre.img} alt={theatre.name} className="w-8 h-8 object-contain" />
+                            <img src={curr.theater.theaterDetails.logo} alt={curr.theater.theaterDetails.name} className="w-8 h-8 object-contain" />
                             <div>
-                                <p className="text-lg font-semibold">{theatre.name}</p>
-                                <p className="text-sm text-gray-500">{theatre.cancellation}</p>
+                                <p className="text-lg font-semibold">{curr.theater.theaterDetails.name}</p>
+                                <p className="text-sm text-gray-500">Allow Cancellation</p>
                             </div>
                         </div>
 
                         {/* Timings */}
                         <div className="flex flex-wrap gap-3 ml-11">
-                            {theatre.timings.map((slot, index) => {
+                            {curr.theater.shows.map((slot, index) => {
                                 return (
                                     <button
-                                        key={index} className="border cursor-pointer hover:bg-gray-100 border-gray-300 rounded-[16px] px-12 py-2 text-sm flex flex-col items-center justify-center">
-                                        <span className="leading-tight font-semibold">{slot.time}</span>
-                                        <span className="text-[10px] text-gray-500 font-black">{slot.label}</span>
+                                        key={index} className="border cursor-pointer hover:bg-gray-100 border-gray-300 rounded-[16px] px-12 py-2 text-sm flex flex-col items-center justify-center min-w-[100px] max-w-[100px] md:min-w-[200px]">
+                                        <span className="leading-tight font-semibold">{new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                        <span className="text-[10px] text-gray-500 font-black">{slot.audioType.toUpperCase()}</span>
                                     </button>
                                 )
                             })}

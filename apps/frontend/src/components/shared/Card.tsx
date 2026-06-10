@@ -1,25 +1,28 @@
-interface Movie {
-    id: number;
-    title: string;
-    genre: string;
-    rating: number;
-    votes: string;
-    img: string;
-    promoted?: boolean;
-}
+// interface Movie {
+//     id: string;
+//     title: string;
+//     genre: string[];
+//     rating: number;
+//     votes: number;
+//     posterUrl: string;
+//     promoted?: boolean;
+// }
+
+import type { Movie } from "../../api/types";
 
 interface ICardProps {
     movie: Movie;
     index: number;
+    handleNavigate: (movie: Movie) => void;
 }
 
-function Card({ movie, index }: ICardProps) {
+function Card({ movie, index, handleNavigate }: ICardProps) {
     return (
 
-        <div key={index} className="rounded cursor-pointer">
+        <div key={index} className="rounded cursor-pointer" onClick={() => handleNavigate(movie)}>
             <div>
                 <img
-                    src={movie.img}
+                    src={movie.posterUrl}
                     alt={movie.title}
                     className="w-full h-[300px] object-cover rounded rounded-b-none"
                 />

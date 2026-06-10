@@ -7,9 +7,12 @@ import NavItem from "../navbar/NavItem";
 import { Icon } from "@repo/ui/icon";
 import { Button } from "@repo/ui/button";
 import { useLocation } from "../../context/LocationContext";
+import { useNavigate } from "react-router";
 
 function Header() {
   const { location, loading } = useLocation();
+
+  const navigate = useNavigate();
 
   return (
     <div className="w-full text-sm bg-white">
@@ -22,6 +25,7 @@ function Header() {
               src={mainLogo}
               alt="logo"
               className="cursor-pointer h-8 object-contain"
+              onClick={() => navigate("/")}
             />
             <div className="relative">
               <input
@@ -54,7 +58,20 @@ function Header() {
         <div className="max-w-screen-xl mx-auto flex justify-between items-center py-2">
           {/* Left Part */}
           <nav>
-            <ul className="flex items-center gap-6 group">
+            <ul className="flex items-center gap-6 group"
+              onClick={(e) => {
+                const target = e.target as HTMLElement;
+                const li = target.closest("li");
+                if (li) {
+                  switch (li.innerText) {
+                    case "Movies":
+                      void navigate("/movies");
+                      break;
+                    default:
+                      break;
+                  }
+                }
+              }}>
               <li>
                 <NavItem to="#">Movies</NavItem>
               </li>

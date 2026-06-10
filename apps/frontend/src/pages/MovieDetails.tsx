@@ -1,31 +1,30 @@
-import m1 from "../assets/m1.avif";
+
 import { FaShareAlt } from "react-icons/fa";
 import { filters } from "../utils/constants";
 import TheaterTimings from "../components/movies/TheaterTimings";
 import { Icon } from "@repo/ui/icon";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { getMovieById } from "../api";
+import { useParams } from "react-router-dom";
 
-const movie = {
-    id: 1,
-    title: "Maa",
-    genre: "Fantasy/Horror/Mythological/Thriller",
-    rating: 7.2,
-    votes: "2.7K",
-    img: m1,
-    promoted: true,
-    languages: "Hindi",
-    age: "UA16+",
-    format: "2D, 3D, IMAX",
-    description:
-        "A movie is great, I am writing to apply for the Node.js / React Developer position at Expert IT Brains. I have experience in developing full-stack web applications using React.js, TypeScript, Node.js, Express.js, SQL databases, and Git. I am passionate about building scalable, maintainable, and high-performance applications and continuously improving my technical skills.",
-};
 
 function MovieDetails() {
+
+    const { id } = useParams() as { id: string };
+
+    const { data } = useQuery({
+        queryKey: ["movie", id],
+        queryFn: () => getMovieById(id),
+        placeholderData: keepPreviousData,
+    });
+
+
     return (
         <>
             <div
                 className="relative text-white px-4 py-10"
                 style={{
-                    backgroundImage: `url(${movie.img})`,
+                    backgroundImage: `url(${data?.posterUrl})`,
                     backgroundSize: "cover",
                     backgroundRepeat: "no-repeat",
                     backgroundPosition: "center",
@@ -38,18 +37,18 @@ function MovieDetails() {
                     {/* Poster */}
                     <div>
                         <img
-                            src={movie.img}
-                            alt={movie.title}
+                            src={data?.posterUrl}
+                            alt={data?.title}
                             className="rounde-2xl w-52 shadow-md"
                         />
                     </div>
                     {/* Details */}
                     <div className="flex flex-col justify-start flex-1 gap-4">
-                        <h1 className="text-4xl font-bold">{movie.title}</h1>
+                        <h1 className="text-4xl font-bold">{data?.title}</h1>
                         <div className="bg-[#3a3a3a] px-4 py-2 rounded-md flex items-center gap-2 text-sm self-start">
-                            <span className="text-pink-500 font-bold">★ {movie.rating} </span>
+                            <span className="text-pink-500 font-bold">★ {data?.rating} </span>
                             <span className="text-gray-300">
-                                ({movie.votes} Votes) <span className="ml-1">→</span>{" "}
+                                ({data?.votes} Votes) <span className="ml-1">→</span>{" "}
                             </span>
                             <button className="cursor-pointer bg-[#2f2f2f] rounded-md px-4 py-2 hover:bg-[#4a4a4a] ml-6">
                                 Rate Now
@@ -58,17 +57,17 @@ function MovieDetails() {
 
                         <div className="flex items-center gap-3 text-sm">
                             <span className="bg-[#3a3a3a] px-3 py-1 rounded">
-                                {movie.format.split(",").join(" | ")}
+                                {data?.format?.split(",").join(" | ")}
                             </span>
                             <span className="bg-[#3a3a3a] px-3 py-1 rounded">
-                                {movie.languages.split(",").join(" | ")}
+                                {data?.languages ? data.languages.join(" | ") : ""}
                             </span>
                         </div>
 
                         <div>
                             <h2 className="text-xl font-bold mb-2">About the movie</h2>
                             <p className="text-sm text-gray-400 leading-relaxed mb-4">
-                                {movie.description}
+                                {data?.description}
                             </p>
                         </div>
                     </div>
@@ -115,7 +114,7 @@ function MovieDetails() {
                     </span>
                 </div>
 
-                <TheaterTimings />
+                <TheaterTimings movideId={id} />
             </div>
 
         </>

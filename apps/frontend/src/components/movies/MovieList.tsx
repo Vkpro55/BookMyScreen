@@ -1,7 +1,8 @@
-import { allMovies, languages } from "../../utils/constants";
+import { languages } from "../../utils/constants";
+import type { Movie } from "../../api/types";
 import MovieCard from "./MovieCard";
 
-function MovieList() {
+function MovieList({ allMovies }: { allMovies: Movie[] }) {
     return (
         <div className="w-full md:w-3/4 p-4">
             <div className="flex flex-wrap gap-2 mb-4">
@@ -23,6 +24,7 @@ function MovieList() {
             </div>
 
             <div className="flex flex-wrap gap-6">
+                {allMovies.length === 0 && <p className="text-gray-500">No movies available.</p>}
                 {allMovies.map((movie, index) => {
                     return <MovieCard key={index} movie={movie} />
                 })}

@@ -22,7 +22,8 @@ export const MovieSchema = z.object({
 export type MovieInput = z.infer<typeof MovieSchema>;
 
 export const MovieParamsSchema = z.object({
-  id: z.cuid2("Invalid CUID format"),
+  // id: z.cuid2("Invalid CUID format"),
+  id: z.string().min(1, "Movie ID is required"),
 });
 
 export const MovieRecommendedQuerySchema = z.object({
