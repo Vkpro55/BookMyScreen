@@ -38,6 +38,8 @@ export type {
   Row,
   Seat,
   ShowSeat,
+  User,
+  RefreshToken,
 } from "@prisma/client";
 
-export { Format, SeatStatus } from "@prisma/client";
+export { Format, SeatStatus, Role } from "@prisma/client";

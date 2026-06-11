@@ -6,7 +6,16 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": ["dist/**"],
-      "env": ["DATABASE_URL", "NODE_ENV", "PORT"]
+      "env": [
+        "DATABASE_URL",
+        "NODE_ENV",
+        "PORT",
+        "ACCESS_TOKEN_SECRET",
+        "REFRESH_TOKEN_SECRET",
+        "HASHING_SECRET",
+        "EMAIL_USER",
+        "EMAIL_PASS"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]

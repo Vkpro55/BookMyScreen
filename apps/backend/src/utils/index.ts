@@ -1,3 +1,5 @@
+export { isValidEmail } from "./validation.js";
+
 import type { ShowWithTheaterAndMovie } from "../modules/show/show.types.js";
 import type { GroupedShow } from "../types/groupedshows.types.js";
 

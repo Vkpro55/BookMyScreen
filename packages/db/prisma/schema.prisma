@@ -130,6 +130,27 @@ model ShowSeat {
   @@map("show_seats")
 }
 
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String
+  phone         BigInt?        @unique
+  role          Role
+  activateUser  Boolean        @default(false)
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id     String @id @default(uuid())
+  token  String @unique
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("refresh_tokens")
+}
+
 enum Format {
   TWO_D
   THREE_D
@@ -141,4 +162,9 @@ enum SeatStatus {
   AVAILABLE
   BOOKED
   BLOCKED
+}
+
+enum Role {
+  admin
+  user
 }
