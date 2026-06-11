@@ -12,6 +12,7 @@ import Movies from "./pages/Movies";
 import MovieDetails from "./pages/MovieDetails";
 import Profile from "./pages/Profile";
 import SeatLayout from "./pages/SeatLayout";
+import Checkout from "./pages/Checkout";
 
 const routes = createRoutesFromElements(
   <>
@@ -21,6 +22,7 @@ const routes = createRoutesFromElements(
       <Route path="movies/:state/:movieName/:id/ticket" element={<MovieDetails />} />
       <Route path="profile" element={<Profile />} />
       <Route path="movies/:movieId/:movieName/:state/theater/:theaterId/show/:showId/seat-layout" element={<SeatLayout />} />
+      <Route path="shows/:showId/:state/checkout" element={<Checkout />} />
     </Route>
   </>,
 );

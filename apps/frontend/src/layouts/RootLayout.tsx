@@ -4,14 +4,15 @@ import Header from "../components/shared/Header";
 
 function RootLayout() {
   const isSeatLayoutPage = useMatch('movies/:movieId/:movieName/:state/theater/:theaterId/show/:showId/seat-layout');
+  const isCheckoutPage = useMatch('shows/:showId/:state/checkout');
 
   return (
     <div className="flex flex-col min-h-screen">
-      {!isSeatLayoutPage && <Header />}
+      {!isSeatLayoutPage && !isCheckoutPage && <Header />}
       <main className="flex-grow w-full">
         <Outlet />
       </main>
-      {!isSeatLayoutPage && <Footer />}
+      {!isSeatLayoutPage && !isCheckoutPage && < Footer />}
     </div>
   );
 }
