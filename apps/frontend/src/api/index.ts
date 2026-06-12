@@ -12,6 +12,13 @@ import type {
   CreateShowInput,
   UpdateSeatStatusInput,
   SeatStatus,
+  User,
+  SendOtpInput,
+  SendOtpResponse,
+  VerifyOtpInput,
+  VerifyOtpResponse,
+  ActivateUserInput,
+  LogoutResponse,
 } from "./types";
 
 export { ApiRequestError };
@@ -26,6 +33,13 @@ const getData = async <T>(
   }
 
   return data.data;
+};
+
+const getResponseBody = async <T>(
+  promise: Promise<{ data: T }>,
+): Promise<T> => {
+  const { data } = await promise;
+  return data;
 };
 
 // ── Movies ──────────────────────────────────────────
@@ -104,3 +118,21 @@ export interface UpdatedShowSeat {
 
 export const updateSeatStatus = (body: UpdateSeatStatusInput) =>
   getData<UpdatedShowSeat>(axiosWrapper.patch("/shows/seats/status", body));
+
+// ── Auth ────────────────────────────────────────────
+
+export const sendOtp = (body: SendOtpInput) =>
+  getResponseBody<SendOtpResponse>(axiosWrapper.post("/auth/send-otp", body));
+
+export const verifyOtp = (body: VerifyOtpInput) =>
+  getResponseBody<VerifyOtpResponse>(
+    axiosWrapper.post("/auth/verify-otp", body),
+  );
+
+export const logout = () =>
+  getResponseBody<LogoutResponse>(axiosWrapper.post("/auth/logout"));
+
+export const activateUser = (id: string, body: ActivateUserInput) =>
+  getData<User>(axiosWrapper.patch(`/users/activate/${id}`, body));
+
+export const getUser = () => getData<User>(axiosWrapper.get("/users/me"));

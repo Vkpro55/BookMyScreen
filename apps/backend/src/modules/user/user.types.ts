@@ -20,5 +20,7 @@ export const UserEmailQuerySchema = z.object({
 });
 
 export const ActivateUserSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  phone: z.number().int(),
   activateUser: z.boolean(),
 });

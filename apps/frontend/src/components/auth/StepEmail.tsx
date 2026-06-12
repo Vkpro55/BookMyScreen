@@ -7,6 +7,9 @@ function StepEmail({ onNext }: { onNext: () => void }) {
 
   const handleSendOtp = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+
+    if (!email) return
+
     onNext();
   };
 

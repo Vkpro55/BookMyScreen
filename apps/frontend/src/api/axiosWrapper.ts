@@ -34,7 +34,7 @@ export const axiosWrapper = axios.create({
 
 axiosWrapper.interceptors.response.use(
   (response: AxiosResponse<ApiResponse<unknown>>) => {
-    if (!response.data.success) {
+    if (response.data.success === false) {
       return Promise.reject(
         new ApiRequestError(
           formatApiErrors(response.data.errors),

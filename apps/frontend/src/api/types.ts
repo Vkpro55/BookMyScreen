@@ -151,3 +151,46 @@ export interface UpdateSeatStatusInput {
   seatId: string;
   status: SeatStatus;
 }
+
+// ── User / Auth ──
+export type Role = "admin" | "user";
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  phone: number | null;
+  role: Role;
+  activateUser: boolean;
+}
+
+export interface SendOtpInput {
+  email: string;
+}
+
+export interface SendOtpResponse {
+  hash: string;
+  email: string;
+  msg: string;
+}
+
+export interface VerifyOtpInput {
+  email: string;
+  otp: string;
+  hash: string;
+}
+
+export interface VerifyOtpResponse {
+  auth: true;
+  user: User;
+}
+
+export interface ActivateUserInput {
+  name: string;
+  phone: number;
+  activateUser: boolean;
+}
+
+export interface LogoutResponse {
+  msg: string;
+}
