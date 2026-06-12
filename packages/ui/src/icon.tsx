@@ -19,7 +19,7 @@ export const Icon = ({
     muted: "text-gray-700",
     social:
       "w-8 h-8 p-2 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition-colors",
-    white: "text-white"
+    white: "text-white",
   };
 
   return (

@@ -19,9 +19,15 @@ const routes = createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
       <Route index={true} element={<Home />} />
       <Route path="movies" element={<Movies />} />
-      <Route path="movies/:state/:movieName/:id/ticket" element={<MovieDetails />} />
+      <Route
+        path="movies/:state/:movieName/:id/ticket"
+        element={<MovieDetails />}
+      />
       <Route path="profile" element={<Profile />} />
-      <Route path="movies/:movieId/:movieName/:state/theater/:theaterId/show/:showId/seat-layout" element={<SeatLayout />} />
+      <Route
+        path="movies/:movieId/:movieName/:state/theater/:theaterId/show/:showId/seat-layout"
+        element={<SeatLayout />}
+      />
       <Route path="shows/:showId/:state/checkout" element={<Checkout />} />
     </Route>
   </>,

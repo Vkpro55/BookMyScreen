@@ -3,8 +3,10 @@ import Footer from "../components/shared/Footer";
 import Header from "../components/shared/Header";
 
 function RootLayout() {
-  const isSeatLayoutPage = useMatch('movies/:movieId/:movieName/:state/theater/:theaterId/show/:showId/seat-layout');
-  const isCheckoutPage = useMatch('shows/:showId/:state/checkout');
+  const isSeatLayoutPage = useMatch(
+    "movies/:movieId/:movieName/:state/theater/:theaterId/show/:showId/seat-layout",
+  );
+  const isCheckoutPage = useMatch("shows/:showId/:state/checkout");
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -12,7 +14,7 @@ function RootLayout() {
       <main className="flex-grow w-full">
         <Outlet />
       </main>
-      {!isSeatLayoutPage && !isCheckoutPage && < Footer />}
+      {!isSeatLayoutPage && !isCheckoutPage && <Footer />}
     </div>
   );
 }

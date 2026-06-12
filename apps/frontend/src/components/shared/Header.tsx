@@ -8,11 +8,15 @@ import { Icon } from "@repo/ui/icon";
 import { Button } from "@repo/ui/button";
 import { useLocation } from "../../context/LocationContext";
 import { useNavigate } from "react-router";
+import SigninModal from "./SigninModal";
+import { useAuth } from "../../context/AuthContext";
 
 function Header() {
   const { location, loading } = useLocation();
 
   const navigate = useNavigate();
+
+  const { toggleModal } = useAuth();
 
   return (
     <div className="w-full text-sm bg-white">
@@ -49,7 +53,9 @@ function Header() {
               {location && <p>{location}</p>}
               <Icon variant="muted" Icon={MdOutlineArrowDropDown} />
             </div>
-            <Button children="Sign in" type="primary" />
+            <Button type="primary" clickHandler={toggleModal}>
+              Sign in
+            </Button>
           </div>
         </div>
       </div>
@@ -58,7 +64,8 @@ function Header() {
         <div className="max-w-screen-xl mx-auto flex justify-between items-center py-2">
           {/* Left Part */}
           <nav>
-            <ul className="flex items-center gap-6 group"
+            <ul
+              className="flex items-center gap-6 group"
               onClick={(e) => {
                 const target = e.target as HTMLElement;
                 const li = target.closest("li");
@@ -71,7 +78,8 @@ function Header() {
                       break;
                   }
                 }
-              }}>
+              }}
+            >
               <li>
                 <NavItem to="#">Movies</NavItem>
               </li>
@@ -119,6 +127,8 @@ function Header() {
           </nav>
         </div>
       </div>
+
+      <SigninModal />
     </div>
   );
 }

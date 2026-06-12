@@ -153,6 +153,9 @@ importers:
       react-slick:
         specifier: ^0.31.0
         version: 0.31.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      react-spinners:
+        specifier: ^0.17.0
+        version: 0.17.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       slick-carousel:
         specifier: ^1.8.1
         version: 1.8.1(jquery@4.0.0)
@@ -4564,6 +4567,15 @@ packages:
       react: ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  react-spinners@0.17.0:
+    resolution:
+      {
+        integrity: sha512-L/8HTylaBmIWwQzIjMq+0vyaRXuoAevzWoD35wKpNTxxtYXWZp+xtgkfD7Y4WItuX0YvdxMPU79+7VhhmbmuTQ==,
+      }
+    peerDependencies:
+      react: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   react@19.2.6:
     resolution:
       {
@@ -8088,6 +8100,11 @@ snapshots:
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
       resize-observer-polyfill: 1.5.1
+
+  react-spinners@0.17.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
+    dependencies:
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
 
   react@19.2.6: {}
 
