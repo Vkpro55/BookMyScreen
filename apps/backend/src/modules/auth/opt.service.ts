@@ -39,7 +39,7 @@ const mailGenerator = new Mailgen({
   theme: "default",
   product: {
     name: "bookMyScreen",
-    link: "",
+    link: "http://localhost:3000",
     logo: "https://res.cloudinary.com/amritrajmaurya/image/upload/v1751475322/zu4fnmh2jljzbtey77ah.png",
   },
 });

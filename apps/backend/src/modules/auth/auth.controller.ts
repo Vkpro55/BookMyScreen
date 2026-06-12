@@ -47,7 +47,7 @@ export const sendOtp = async (
     const hashedOtp = OtpService.hashOtp(data);
 
     // 3. Send Otp to email
-    await OtpService.sendOtpToEmail(email, hashedOtp);
+    await OtpService.sendOtpToEmail(email, String(otp));
 
     // 4. Respond to the client;
     res.json({
@@ -117,8 +117,8 @@ export const verifyOtp = async (
 
     user ??= await UserService.createUser({
       email,
-      name: "",
-      phone: Number(""),
+      name: "dummy_user",
+      phone: 1231231234,
       role: "user",
     });
 
@@ -153,6 +153,34 @@ export const verifyOtp = async (
 };
 
 export const logout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const refreshToken = getCookie(req, "refreshToken");
+
+    if (!refreshToken) {
+      return next(
+        new createHttpError.Unauthorized(
+          "Refresh token not found, please login again",
+        ),
+      );
+    }
+
+    // delete refresh token from db
+    await TokenService.deleteRefreshToken(refreshToken);
+
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+
+    res.json({ msg: "Logged out successfully" }).status(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const refreshToken = async (
   req: Request,
   res: Response,
   next: NextFunction,

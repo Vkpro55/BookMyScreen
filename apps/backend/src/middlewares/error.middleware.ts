@@ -2,7 +2,9 @@ import type { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 import type { ApiResponse, IError } from "../types/response.types.js";
 import { HttpError } from "http-errors";
-import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+
+const { JsonWebTokenError, TokenExpiredError } = jwt;
 
 export const globalErrorHandler = (
   err: unknown,
@@ -24,7 +26,10 @@ export const globalErrorHandler = (
   } else if (err instanceof HttpError) {
     statusCode = err.statusCode || 400;
     errors = { message: err.message };
-  } else if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+  } else if (
+    err instanceof TokenExpiredError ||
+    err instanceof JsonWebTokenError
+  ) {
     statusCode = 401;
     errors = { message: "Invalid or expired token, please login again" };
   } else if (err instanceof Error) {

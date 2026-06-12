@@ -7,5 +7,6 @@ const router: Router = express.Router();
 router.post("/send-otp", AuthController.sendOtp);
 router.post("/verify-otp", AuthController.verifyOtp);
 router.post("/logout", AuthController.logout);
+router.get("/refresh-token", AuthController.refreshToken);
 
 export default router;

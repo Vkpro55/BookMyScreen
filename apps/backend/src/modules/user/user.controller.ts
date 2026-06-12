@@ -61,24 +61,11 @@ export const getUserById = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const result = UserTypes.UserParamsSchema.safeParse(req.params);
-
-    if (!result.success) {
-      const errors: IError[] = result.error.issues.map((issue) => ({
-        field: issue.path.join("."),
-        message: issue.message,
-      }));
-
-      const response: ApiResponse<null> = {
-        success: false,
-        errors,
-      };
-      res.status(400).json(response);
-      return;
+    if (!req.user) {
+      throw new Error("User not authenticated");
     }
 
-    const { id } = result.data;
-    const user = await UserService.getUserById(id);
+    const user = await UserService.getUserById(req.user.id);
 
     if (!user) {
       const response: ApiResponse<null> = {

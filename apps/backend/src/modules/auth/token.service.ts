@@ -1,4 +1,4 @@
-import * as jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { config } from "../../config/config.js";
 import type { ITokenPayload } from "./auth.types.js";
 import prisma from "@repo/db/client";
