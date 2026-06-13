@@ -12,11 +12,13 @@ export const isVerifiedUser = async (
     const { accessToken } = req.cookies;
 
     if (!accessToken) {
-      return new createHttpError.Unauthorized("Acess token is missing");
+      return next(new createHttpError.Unauthorized("Access token is missing"));
     }
 
     if (typeof accessToken !== "string") {
-      return new createHttpError.Unauthorized("Access token type is invalid");
+      return next(
+        new createHttpError.Unauthorized("Access token type is invalid"),
+      );
     }
 
     const decodedToken = TokenService.verifyAccessToken(accessToken);
@@ -27,7 +29,7 @@ export const isVerifiedUser = async (
     }
 
     if (!user) {
-      return new createHttpError.Unauthorized("User not found");
+      return next(new createHttpError.Unauthorized("User not found"));
     }
 
     req.user = user;

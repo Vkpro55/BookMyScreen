@@ -2,10 +2,14 @@ import { useRef, useState } from "react";
 import type { MouseEvent, ChangeEvent } from "react";
 import { useCountdown } from "../../hooks/useCountDown";
 import { IoClose } from "react-icons/io5";
+import { useAuth } from "../../context/AuthContext";
 
 function StepOtp({ onNext }: { onNext: () => void }) {
   const [otpArray, setOtpArray] = useState<string[]>(new Array(4).fill(""));
   const inputRef = useRef<(HTMLInputElement | null)[]>([]);
+
+  const { verifyOtpRequest } = useAuth();
+
 
   const { displayTime, isExpired } = useCountdown({
     initialTimeInSeconds: 2 * 60,
@@ -13,7 +17,9 @@ function StepOtp({ onNext }: { onNext: () => void }) {
 
   const handleVerifyOtp = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    onNext();
+
+    const otp = otpArray.join("");
+    verifyOtpRequest({ otp, onNext })
   };
 
   const handleOtpChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {

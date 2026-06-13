@@ -115,12 +115,7 @@ export const verifyOtp = async (
     // 2. Find or create user
     let user = await UserService.getUserByEmail(email);
 
-    user ??= await UserService.createUser({
-      email,
-      name: "dummy_user",
-      phone: 1231231234,
-      role: "user",
-    });
+    user ??= await UserService.createUser({ email });
 
     // 3. Generate Tokens
     const { accessToken, refreshToken } = TokenService.generateToken({

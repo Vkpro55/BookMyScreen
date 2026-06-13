@@ -37,7 +37,7 @@ interface VerifyOtpRequestParams {
 
 interface ActivateUserRequestParams {
   name: string;
-  phone: number;
+  phone: string;
 }
 
 interface ActivateUserVariables {

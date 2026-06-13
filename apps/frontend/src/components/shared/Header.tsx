@@ -34,7 +34,7 @@ function Header() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search for Movies, Events, Plays, Sports and Activities"
+                placeholder="Search for Movies, Events, Plays and Sports"
                 className="border border-gray-300 rounded px-4 py-1.5 w-[400px] text-sm outline-none"
               />
               <Icon

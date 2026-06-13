@@ -159,7 +159,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  phone: number | null;
+  phone: string | null;
   role: Role;
   activateUser: boolean;
 }
@@ -187,7 +187,7 @@ export interface VerifyOtpResponse {
 
 export interface ActivateUserInput {
   name: string;
-  phone: number;
+  phone: string;
   activateUser: boolean;
 }
 

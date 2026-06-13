@@ -1,16 +1,18 @@
 import { useState } from "react";
 import type { MouseEvent } from "react";
+import { useAuth } from "../../context/AuthContext";
 // import { BeatLoader } from 'react-spinners';
 
 function StepEmail({ onNext }: { onNext: () => void }) {
   const [email, setEmail] = useState<string>("");
+  const { sendOtpRequest } = useAuth();
 
   const handleSendOtp = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
     if (!email) return
 
-    onNext();
+    sendOtpRequest({ email, onNext })
   };
 
   return (

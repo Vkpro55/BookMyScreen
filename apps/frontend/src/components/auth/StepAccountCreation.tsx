@@ -1,12 +1,17 @@
 import { useState } from "react";
 import type { MouseEvent } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 function StepAccountCreation() {
   const [name, setName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
 
+  const { activateUserRequest } = useAuth();
+
   const handleActivateAccount = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+
+    activateUserRequest({ name, phone })
   };
 
   return (
@@ -23,7 +28,7 @@ function StepAccountCreation() {
           type="text"
           value={name}
           placeholder="Enter your full name"
-          onChange={(e) => setPhone(e.target.value)}
+          onChange={(e) => setName(e.target.value)}
           className="flex-grow outline-none text-base"
           required
         />
@@ -32,7 +37,7 @@ function StepAccountCreation() {
         <input
           type="text"
           value={phone}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => setPhone(e.target.value)}
           placeholder="Enter your phone number"
           className="flex-grow outline-none text-base"
           required

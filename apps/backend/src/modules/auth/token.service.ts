@@ -23,11 +23,10 @@ export const storeRefreshTokenInDB = async (
   userId: string,
   refreshToken: string,
 ): Promise<void> => {
-  await prisma.refreshToken.create({
-    data: {
-      userId,
-      token: refreshToken,
-    },
+  await prisma.refreshToken.upsert({
+    where: { userId },
+    update: { token: refreshToken },
+    create: { userId, token: refreshToken },
   });
 };
 

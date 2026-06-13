@@ -133,9 +133,9 @@ model ShowSeat {
 model User {
   id            String         @id @default(cuid())
   email         String         @unique
-  name          String
-  phone         Int?           @unique
-  role          Role
+  name          String?
+  phone         String?        @unique
+  role          Role           @default(user)
   activateUser  Boolean        @default(false)
   refreshTokens RefreshToken[]
 

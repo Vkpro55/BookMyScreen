@@ -30,7 +30,6 @@ if (process.env.NODE_ENV !== "production") {
 export default prisma;
 
 export type {
-  Prisma,
   Movie,
   Theater,
   Screen,
@@ -42,4 +41,4 @@ export type {
   RefreshToken,
 } from "@prisma/client";
 
-export { Format, SeatStatus, Role } from "@prisma/client";
+export { Format, SeatStatus, Role, Prisma } from "@prisma/client";
