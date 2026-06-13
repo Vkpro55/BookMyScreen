@@ -4,6 +4,7 @@ import {
   Route,
 } from "react-router";
 import { RouterProvider } from "react-router/dom";
+import { Toaster } from "react-hot-toast";
 
 import "./App.css";
 import RootLayout from "./layouts/RootLayout";
@@ -13,6 +14,9 @@ import MovieDetails from "./pages/MovieDetails";
 import Profile from "./pages/Profile";
 import SeatLayout from "./pages/SeatLayout";
 import Checkout from "./pages/Checkout";
+import { useLoadUser } from "./hooks/useLoader";
+import FullScreenLoader from "./components/shared/FullScreenLoader";
+// import PrivateLayout from "./layouts/PrivateLayout";
 
 const routes = createRoutesFromElements(
   <>
@@ -23,11 +27,13 @@ const routes = createRoutesFromElements(
         path="movies/:state/:movieName/:id/ticket"
         element={<MovieDetails />}
       />
-      <Route path="profile" element={<Profile />} />
+      {/* <Route element={<PrivateLayout />}> */}
+      <Route path="profile/:id/" element={<Profile />} />
       <Route
         path="movies/:movieId/:movieName/:state/theater/:theaterId/show/:showId/seat-layout"
         element={<SeatLayout />}
       />
+      {/* </Route> */}
       <Route path="shows/:showId/:state/checkout" element={<Checkout />} />
     </Route>
   </>,
@@ -36,7 +42,19 @@ const routes = createRoutesFromElements(
 const router = createBrowserRouter(routes);
 
 function App() {
-  return <RouterProvider router={router} />;
+
+  const { isLoading } = useLoadUser();
+
+  if (isLoading) {
+    return <FullScreenLoader />
+  }
+
+  return (
+    <>
+      <RouterProvider router={router} />
+      <Toaster position="top-right" reverseOrder={false} />
+    </>
+  );
 }
 
 export default App;

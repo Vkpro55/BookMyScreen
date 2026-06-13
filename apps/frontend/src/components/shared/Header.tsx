@@ -1,6 +1,6 @@
 import mainLogo from "../../assets/main-icon.png";
 import map from "../../assets/pin.gif";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaUser } from "react-icons/fa";
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import NavItem from "../navbar/NavItem";
 
@@ -16,7 +16,7 @@ function Header() {
 
   const navigate = useNavigate();
 
-  const { toggleModal } = useAuth();
+  const { toggleModal, auth, user } = useAuth();
 
   return (
     <div className="w-full text-sm bg-white">
@@ -53,9 +53,16 @@ function Header() {
               {location && <p>{location}</p>}
               <Icon variant="muted" Icon={MdOutlineArrowDropDown} />
             </div>
-            <Button type="primary" clickHandler={toggleModal}>
+            {auth ? (<>
+              <span className="cursor-pointer text-sm font-medium border rounded-full border-gray-300 p-2">
+                <FaUser className="text-gray-500" />
+              </span>
+              <span onClick={() => navigate(`/profile/${user?.id}`)} className="text-sm -ml-3 font-normal cursor-pointer hover:text-red-500">
+                Hi, {user ? user.name : "Test User"} &nbsp; ▼
+              </span>
+            </>) : (<Button type="primary" clickHandler={toggleModal}>
               Sign in
-            </Button>
+            </Button>)}
           </div>
         </div>
       </div>

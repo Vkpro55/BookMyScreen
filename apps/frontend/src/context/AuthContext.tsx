@@ -60,6 +60,7 @@ interface IAuthContext {
   verifyOtpRequest: (params: VerifyOtpRequestParams) => void;
   activateUserRequest: (params: ActivateUserRequestParams) => void;
   logoutRequest: () => void;
+  otpLoader: boolean;
 }
 
 const AuthContext = createContext<IAuthContext | undefined>(undefined);
@@ -103,7 +104,12 @@ export const AuthProvider = ({ children }: IProps) => {
     mutationFn: () => logout(),
   });
 
-  const toggleModal = () => setShowModal(!showModal);
+  const toggleModal = () => {
+    setShowModal(!showModal)
+    if (step !== 1) {
+      setStep(1);
+    }
+  };
 
   const sendOtpRequest = ({ email, onNext }: SendOtpRequestParams) => {
     sendOtpRequestMutation.mutate(email, {
@@ -204,6 +210,7 @@ export const AuthProvider = ({ children }: IProps) => {
         setUser,
         auth,
         setAuth,
+        otpLoader: sendOtpRequestMutation.isPending
       }}
     >
       {children}

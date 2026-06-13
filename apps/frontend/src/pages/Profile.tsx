@@ -5,9 +5,16 @@ import { IoIosLogOut } from "react-icons/io";
 import { FiEdit } from "react-icons/fi";
 import BookingHistory from "../components/profile/BookingHistory";
 import { Icon } from "@repo/ui/icon";
+import { useAuth } from "../context/AuthContext";
 
 function Profile() {
   const [activeTab, setActiveTab] = useState("Your Orders");
+
+  const { user, logoutRequest } = useAuth();
+
+  const handleLogOut = () => {
+    logoutRequest();
+  }
 
   return (
     <>
@@ -39,8 +46,8 @@ function Profile() {
                 </div>
 
                 <div className="ml-2">
-                  <h2 className="text-2xl font-bold">Hi, Vinod Kumar</h2>
-                  <small className="underline cursor-pointer">
+                  <h2 className="text-2xl font-bold">Hi, {user?.name}</h2>
+                  <small className="underline cursor-pointer" onClick={handleLogOut}>
                     <Icon
                       Icon={IoIosLogOut}
                       className="inline mr-1"
@@ -58,7 +65,7 @@ function Profile() {
                   <div className="flex justify-between items-center text-sm text-gray-800 mb-3">
                     <p>Email Address</p>
                     <div className="flex items-center gap-2">
-                      <p>20bch057@gmail.com</p>
+                      <p>{user?.email}</p>
                       <span className="text-green-600 bg-green-100 text-xs rounded px-1 ">
                         Verified
                       </span>
@@ -71,7 +78,7 @@ function Profile() {
                   <div className="flex justify-between items-center text-sm text-gray-800 mb-3">
                     <p>Mobile Number</p>
                     <div className="flex items-center gap-2">
-                      <p>+91 7876278762</p>
+                      <p>{user?.phone}</p>
                       <span className="text-green-600 bg-green-100 text-xs rounded px-1 ">
                         Verified
                       </span>
@@ -93,6 +100,8 @@ function Profile() {
                     </label>
                     <input
                       type="text"
+                      value={user?.name.split(" ")[0]}
+                      readOnly
                       placeholder="Enter your first name..."
                       className="w-full mt-1 border border-gray-200 rounded-lg px-3 py-1 placeholder:text-gray-500 placeholder:italic placeholder:text-sm"
                     />
@@ -103,6 +112,8 @@ function Profile() {
                     </label>
                     <input
                       type="text"
+                      value={user?.name.split(" ")[1]}
+                      readOnly
                       placeholder="Enter your last name..."
                       className="w-full mt-1 border border-gray-200 rounded-lg px-3 py-1 placeholder:text-gray-500 placeholder:italic placeholder:text-sm"
                     />
