@@ -1,4 +1,4 @@
-import { axiosWrapper, ApiRequestError } from "./axiosWrapper";
+import { axiosWrapper, ApiRequestError, formatApiErrors } from "./axiosWrapper";
 import type {
   ApiResponse,
   Movie,
@@ -27,11 +27,12 @@ const getData = async <T>(
   promise: Promise<{ data: ApiResponse<T> }>,
 ): Promise<T> => {
   const { data } = await promise;
-
-  if (data.data === undefined) {
-    throw new ApiRequestError("Response missing data");
+  if (data.success === false || data.data === undefined) {
+    throw new ApiRequestError(
+      data.errors ? formatApiErrors(data.errors) : "Request failed",
+      data.errors,
+    );
   }
-
   return data.data;
 };
 

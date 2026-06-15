@@ -16,7 +16,8 @@ import SeatLayout from "./pages/SeatLayout";
 import Checkout from "./pages/Checkout";
 import { useLoadUser } from "./hooks/useLoader";
 import FullScreenLoader from "./components/shared/FullScreenLoader";
-// import PrivateLayout from "./layouts/PrivateLayout";
+import { useAuth } from "./context/AuthContext";
+import PrivateLayout from "./layouts/PrivateLayout";
 
 const routes = createRoutesFromElements(
   <>
@@ -27,14 +28,14 @@ const routes = createRoutesFromElements(
         path="movies/:state/:movieName/:id/ticket"
         element={<MovieDetails />}
       />
-      {/* <Route element={<PrivateLayout />}> */}
-      <Route path="profile/:id/" element={<Profile />} />
-      <Route
-        path="movies/:movieId/:movieName/:state/theater/:theaterId/show/:showId/seat-layout"
-        element={<SeatLayout />}
-      />
-      {/* </Route> */}
-      <Route path="shows/:showId/:state/checkout" element={<Checkout />} />
+      <Route element={<PrivateLayout />}>
+        <Route path="profile/:id/" element={<Profile />} />
+        <Route
+          path="movies/:movieId/:movieName/:state/theater/:theaterId/show/:showId/seat-layout"
+          element={<SeatLayout />}
+        />
+        <Route path="shows/:showId/:state/checkout" element={<Checkout />} />
+      </Route>
     </Route>
   </>,
 );
@@ -42,11 +43,11 @@ const routes = createRoutesFromElements(
 const router = createBrowserRouter(routes);
 
 function App() {
+  useLoadUser();
+  const { auth } = useAuth();
 
-  const { isLoading } = useLoadUser();
-
-  if (isLoading) {
-    return <FullScreenLoader />
+  if (auth === null) {
+    return <FullScreenLoader />;
   }
 
   return (

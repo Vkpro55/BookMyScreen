@@ -13,12 +13,12 @@ export const useLoadUser = () => {
         setUser(data);
         setAuth(true);
       } catch {
-        // handle error
+        setUser(null);
+        setAuth(false);
       } finally {
         setIsLoading(false);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { isLoading };

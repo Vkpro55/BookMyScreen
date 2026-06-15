@@ -54,8 +54,8 @@ interface IAuthContext {
   authData: AuthData | null;
   user: User | null;
   setUser: Dispatch<SetStateAction<User | null>>;
-  auth: boolean;
-  setAuth: Dispatch<SetStateAction<boolean>>;
+  auth: boolean | null;
+  setAuth: Dispatch<SetStateAction<boolean | null>>;
   sendOtpRequest: (params: SendOtpRequestParams) => void;
   verifyOtpRequest: (params: VerifyOtpRequestParams) => void;
   activateUserRequest: (params: ActivateUserRequestParams) => void;
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }: IProps) => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [authData, setAuthData] = useState<AuthData | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [auth, setAuth] = useState<boolean>(false);
+  const [auth, setAuth] = useState<boolean | null>(null);
 
   const sendOtpRequestMutation = useMutation<
     SendOtpResponse,
