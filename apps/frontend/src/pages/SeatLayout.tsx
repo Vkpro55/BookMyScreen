@@ -1,19 +1,14 @@
-import { useState } from "react";
 import { useParams } from "react-router";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { getShowById } from "../api";
-import type { ShowRowWithSeats } from "../api/types";
+import type { ShowBookingDetails, ShowRowWithSeats } from "../api/types";
 import Footer from "../components/seatlayout/Footer";
 import Header from "../components/seatlayout/Header";
 import Seat from "../components/seatlayout/Seat";
 import screenImg from "../assets/screen.png";
-
-interface SelectedSeat {
-  seatId: string;
-  rowLabel: string;
-  seatNumber: number;
-  price: number;
-}
+import { useSeatContext } from "../context/SeatContext";
+import { useLocation } from "../context/LocationContext";
+import { getSeatType } from "../utils";
 
 function groupRowsByPrice(rows: ShowRowWithSeats[]) {
   return rows.reduce<
@@ -27,9 +22,10 @@ function groupRowsByPrice(rows: ShowRowWithSeats[]) {
 
 function SeatLayout() {
   const { showId } = useParams();
-  const [selectedSeats, setSelectedSeats] = useState<SelectedSeat[]>([]);
+  const { selectedSeats, setSelectedSeats } = useSeatContext();
+  const { location } = useLocation();
 
-  const { data: showData, isLoading } = useQuery({
+  const { data: showData, isLoading } = useQuery<ShowBookingDetails>({
     queryKey: ["show", showId],
     queryFn: () => getShowById(showId ?? ""),
     placeholderData: keepPreviousData,
@@ -43,6 +39,8 @@ function SeatLayout() {
   ) => {
     if (seat.status !== "AVAILABLE") return;
 
+    const seatNumber = `${rowLabel}${seat.number}`;
+
     setSelectedSeats((prev) => {
       const exists = prev.find((s) => s.seatId === seat.id);
       if (exists) {
@@ -53,8 +51,9 @@ function SeatLayout() {
         {
           seatId: seat.id,
           rowLabel,
-          seatNumber: seat.number,
+          seatNumber,
           price,
+          type: getSeatType(seatNumber),
         },
       ];
     });
@@ -126,7 +125,7 @@ function SeatLayout() {
       </div>
 
       <div className="fixed bottom-0 left-0 w-full z-10 h-[100px] bg-white border-t border-gray-200 p-4">
-        <Footer selectedCount={selectedSeats.length} />
+        <Footer selectedCount={selectedSeats.length} state={location} showData={showData} />
       </div>
     </div>
   );

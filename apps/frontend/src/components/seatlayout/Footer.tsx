@@ -1,5 +1,23 @@
+import { useNavigate } from "react-router";
+import type { ShowBookingDetails } from "../../api/types";
+import { useSeatContext } from "../../context/SeatContext";
 
-function Footer({ selectedCount }: { selectedCount: number }) {
+interface FooterProps {
+  selectedCount: number;
+  state: string;
+  showData: ShowBookingDetails;
+};
+
+function Footer({ selectedCount, state, showData }: FooterProps) {
+
+  const navigate = useNavigate();
+
+  const { setShows } = useSeatContext();
+
+  const handleNavigateToCheckout = () => {
+    void navigate(`/shows/${showData.id}/${state}/checkout`);
+    setShows(showData);
+  }
 
   return selectedCount > 0 ? (
     <div className="bg-white py-3 px-6 flex items-center justify-between z-10">
@@ -7,6 +25,7 @@ function Footer({ selectedCount }: { selectedCount: number }) {
         {selectedCount} Seat{selectedCount > 1 ? "s" : ""} Selected
       </p>
       <button
+        onClick={handleNavigateToCheckout}
         type="button"
         className="bg-black cursor-pointer text-white px-6 py-2 rounded-lg font-semibold"
       >
