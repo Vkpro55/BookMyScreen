@@ -1,4 +1,6 @@
+
 function Footer({ selectedCount }: { selectedCount: number }) {
+
   return selectedCount > 0 ? (
     <div className="bg-white py-3 px-6 flex items-center justify-between z-10">
       <p className="text-gray-700 font-medium text-base">
