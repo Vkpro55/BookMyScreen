@@ -3,6 +3,7 @@ import { config } from "./config/config.js";
 import "./config/redis.js";
 import http from "http";
 import { WebSocketServer } from "ws";
+import { socketHandlers } from "./socket/socketHandlers.js";
 
 /* eslint-disable no-console */
 
@@ -34,15 +35,8 @@ function startServer() {
   });
 
   wss.on("connection", function connection(ws) {
-    ws.on("error", console.error);
-
-    console.log("✅ User connected: ", ws);
-
-    ws.on("message", function message(data) {
-      console.log("received: %s", data);
-    });
-
-    ws.send("something");
+    console.log("NEW WS CONNECTION");
+    void socketHandlers(ws, wss);
   });
 
   httpServer.listen(port, "0.0.0.0");

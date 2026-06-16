@@ -1,4 +1,3 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -9,6 +8,7 @@ import { LocationProvider } from "./context/LocationContext.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import { SeatContextProvider } from "./context/SeatContext.tsx";
+import { SockerProvider } from "./context/SocketContext.tsx";
 
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("Root element not found");
@@ -22,15 +22,15 @@ const queryClient = new QueryClient({
 });
 
 createRoot(rootEl).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <LocationProvider>
-          <SeatContextProvider>
+  <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <LocationProvider>
+        <SeatContextProvider>
+          <SockerProvider>
             <App />
-          </SeatContextProvider>
-        </LocationProvider>
-      </AuthProvider>
-    </QueryClientProvider>
-  </StrictMode>,
+          </SockerProvider>
+        </SeatContextProvider>
+      </LocationProvider>
+    </AuthProvider>
+  </QueryClientProvider>
 );

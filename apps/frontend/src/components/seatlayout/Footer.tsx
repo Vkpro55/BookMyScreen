@@ -1,20 +1,41 @@
 import { useNavigate } from "react-router";
 import type { ShowBookingDetails } from "../../api/types";
 import { useSeatContext } from "../../context/SeatContext";
+import { useSocket } from "../../context/SocketContext";
+import { useAuth } from "../../context/AuthContext";
+import type { SelectedSeat } from "../../context/SeatContext";
 
 interface FooterProps {
   selectedCount: number;
   state: string;
   showData: ShowBookingDetails;
+  selectedSeats: SelectedSeat[];
 };
 
-function Footer({ selectedCount, state, showData }: FooterProps) {
+function Footer({ selectedCount, state, showData, selectedSeats }: FooterProps) {
 
   const navigate = useNavigate();
 
   const { setShows } = useSeatContext();
 
+  const { socket } = useSocket();
+
+  const { user } = useAuth();
+
   const handleNavigateToCheckout = () => {
+    // send lock seat to socket server
+    if (socket) {
+      socket.send(
+        JSON.stringify({
+          type: "lock-seats",
+          showId: showData.id,
+          seatIds: selectedSeats.map((seat) => seat.seatId),
+          userId: user?.id
+        })
+      );
+    }
+
+
     void navigate(`/shows/${showData.id}/${state}/checkout`);
     setShows(showData);
   }

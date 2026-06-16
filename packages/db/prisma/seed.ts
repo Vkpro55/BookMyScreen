@@ -376,12 +376,14 @@ async function main(): Promise<void> {
     const screenSeats = seatsByScreen.get(show.screenId) ?? [];
 
     for (const seat of screenSeats) {
-      const status =
-        Math.random() > 0.7
-          ? SeatStatus.BOOKED
-          : Math.random() > 0.8
-            ? SeatStatus.BLOCKED
-            : SeatStatus.AVAILABLE;
+      // const status =
+      //   Math.random() > 0.7
+      //     ? SeatStatus.BOOKED
+      //     : Math.random() > 0.8
+      //       ? SeatStatus.BLOCKED
+      //       : SeatStatus.AVAILABLE;
+
+      const status = SeatStatus.AVAILABLE;
 
       showSeatEntries.push({
         id: `show_seat_${show.id}_${seat.id}`,

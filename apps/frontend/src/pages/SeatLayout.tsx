@@ -9,6 +9,11 @@ import screenImg from "../assets/screen.png";
 import { useSeatContext } from "../context/SeatContext";
 import { useLocation } from "../context/LocationContext";
 import { getSeatType } from "../utils";
+import { useEffect, useState } from "react";
+import { useSocket } from "../context/SocketContext";
+
+/* eslint-disable no-console */
+
 
 function groupRowsByPrice(rows: ShowRowWithSeats[]) {
   return rows.reduce<
@@ -24,6 +29,8 @@ function SeatLayout() {
   const { showId } = useParams();
   const { selectedSeats, setSelectedSeats } = useSeatContext();
   const { location } = useLocation();
+  const [lockedSeats, setLockedSeats] = useState<string[]>();
+  const { setSocket } = useSocket();
 
   const { data: showData, isLoading } = useQuery<ShowBookingDetails>({
     queryKey: ["show", showId],
@@ -59,6 +66,67 @@ function SeatLayout() {
     });
   };
 
+  // Socket code
+  useEffect(() => {
+    if (!showId) {
+      return;
+    }
+
+    const ws = new WebSocket("ws://localhost:3000");
+
+    console.log("Socket state:", ws.readyState);
+
+    ws.onopen = () => {
+      console.log("✅ WebSocket connected");
+
+      // Send join-show event when connected
+      ws.send(
+        JSON.stringify({
+          type: "join-show",
+          showId,
+        })
+      );
+    };
+
+    ws.onmessage = (event: MessageEvent) => {
+      try {
+        const parsed = JSON.parse(event.data as string) as unknown;
+
+        if (typeof parsed !== "object" || !parsed) {
+          return;
+        }
+
+        const message = parsed as Record<string, unknown>;
+
+        switch (message.type) {
+          case "locked-seats-initials": {
+            const seatIds = message.seatIds as string[];
+            setLockedSeats(seatIds);
+            break;
+          }
+
+          default:
+            break;
+        }
+      } catch (error) {
+        console.error("Failed to parse message", error);
+      }
+    };
+
+
+    ws.onerror = (e) => {
+      console.error("WS Error", e);
+    };
+
+    ws.onclose = (e) => {
+      console.log("WS Closed", e.code, e.reason);
+    };
+
+
+    setSocket(ws);
+
+  }, [showId]);
+
   if (isLoading || !showData) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -68,6 +136,9 @@ function SeatLayout() {
   }
 
   const priceGroups = groupRowsByPrice(showData.rows);
+
+
+  console.log("Current all ocked seats are returned by websocket server: ", lockedSeats);
 
   return (
     <div className="h-screen overflow-y-hidden">
@@ -98,6 +169,7 @@ function SeatLayout() {
                           <Seat
                             key={seat.id}
                             seat={seat}
+                            lockedSeats={lockedSeats ?? []}
                             rowLabel={rowObj.label}
                             isSelected={selectedSeats.some(
                               (s) => s.seatId === seat.id,
@@ -125,7 +197,7 @@ function SeatLayout() {
       </div>
 
       <div className="fixed bottom-0 left-0 w-full z-10 h-[100px] bg-white border-t border-gray-200 p-4">
-        <Footer selectedCount={selectedSeats.length} state={location} showData={showData} />
+        <Footer selectedCount={selectedSeats.length} state={location} showData={showData} selectedSeats={selectedSeats} />
       </div>
     </div>
   );
