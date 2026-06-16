@@ -14,7 +14,9 @@
         "REFRESH_TOKEN_SECRET",
         "HASHING_SECRET",
         "EMAIL_USER",
-        "EMAIL_PASS"
+        "EMAIL_PASS",
+        "REDIS_HOST",
+        "REDIS_PORT"
       ]
     },
     "lint": {

@@ -17,11 +17,13 @@ function Checkout() {
   const { selectedSeats, shows } = useSeatContext();
   const { base, tax, total } = calculateTotalPrice(selectedSeats);
 
-
+  // Guard effect: redirect to home if no show or seats selected
+  // Only runs on mount to prevent infinite redirects
   useEffect(() => {
     if (!shows || selectedSeats.length === 0) {
       void navigate("/");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

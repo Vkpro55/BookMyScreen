@@ -19,7 +19,7 @@ export const useLoadUser = () => {
         setIsLoading(false);
       }
     })();
-  }, []);
+  }, [setUser, setAuth]);
 
   return { isLoading };
 };

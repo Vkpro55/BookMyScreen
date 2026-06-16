@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useCallback } from "react";
 import type { ReactNode, Dispatch, SetStateAction } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { sendOtp, verifyOtp, activateUser, logout } from "../api";
@@ -72,6 +72,15 @@ export const AuthProvider = ({ children }: IProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [auth, setAuth] = useState<boolean | null>(null);
 
+  // Memoize setters to prevent unnecessary effect re-runs
+  const memoizedSetUser = useCallback<Dispatch<SetStateAction<User | null>>>((value) => {
+    setUser(value);
+  }, []);
+
+  const memoizedSetAuth = useCallback<Dispatch<SetStateAction<boolean | null>>>((value) => {
+    setAuth(value);
+  }, []);
+
   const sendOtpRequestMutation = useMutation<
     SendOtpResponse,
     ApiRequestError,
@@ -135,8 +144,8 @@ export const AuthProvider = ({ children }: IProps) => {
       {
         onSuccess: (res) => {
           setAuthData(null);
-          setUser(res.user);
-          setAuth(true);
+          memoizedSetUser(res.user);
+          memoizedSetAuth(true);
           if (!res.user.activateUser) {
             onNext();
           } else {
@@ -164,8 +173,8 @@ export const AuthProvider = ({ children }: IProps) => {
       },
       {
         onSuccess: (updatedUser) => {
-          setUser(updatedUser);
-          setAuth(true);
+          memoizedSetUser(updatedUser);
+          memoizedSetAuth(true);
           toast.success("Account activated successfully");
           setStep(1);
           toggleModal();
@@ -180,8 +189,8 @@ export const AuthProvider = ({ children }: IProps) => {
   const logoutRequest = () => {
     logoutRequestMutation.mutate(undefined, {
       onSuccess: () => {
-        setAuth(false);
-        setUser(null);
+        memoizedSetAuth(false);
+        memoizedSetUser(null);
         setAuthData(null);
         setStep(1);
         toast.success("Logged out successfully");
@@ -207,9 +216,9 @@ export const AuthProvider = ({ children }: IProps) => {
         verifyOtpRequest,
         activateUserRequest,
         logoutRequest,
-        setUser,
+        setUser: memoizedSetUser,
         auth,
-        setAuth,
+        setAuth: memoizedSetAuth,
         otpLoader: sendOtpRequestMutation.isPending
       }}
     >
