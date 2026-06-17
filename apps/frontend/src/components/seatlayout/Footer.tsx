@@ -16,13 +16,15 @@ function Footer({ selectedCount, state, showData, selectedSeats }: FooterProps) 
 
   const navigate = useNavigate();
 
-  const { setShows } = useSeatContext();
+  const { setShows, setCheckoutExpiresAt } = useSeatContext();
 
   const { socket } = useSocket();
 
   const { user } = useAuth();
 
   const handleNavigateToCheckout = () => {
+    const expiration = new Date(Date.now() + 300_000).toISOString();
+
     // send lock seat to socket server
     if (socket) {
       socket.send(
@@ -30,14 +32,14 @@ function Footer({ selectedCount, state, showData, selectedSeats }: FooterProps) 
           type: "lock-seats",
           showId: showData.id,
           seatIds: selectedSeats.map((seat) => seat.seatId),
-          userId: user?.id
-        })
+          userId: user?.id,
+        }),
       );
     }
 
-
-    void navigate(`/shows/${showData.id}/${state}/checkout`);
     setShows(showData);
+    setCheckoutExpiresAt(expiration);
+    void navigate(`/shows/${showData.id}/${state}/checkout`);
   }
 
   return selectedCount > 0 ? (

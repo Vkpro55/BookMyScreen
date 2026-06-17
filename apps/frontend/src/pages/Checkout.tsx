@@ -6,31 +6,91 @@ import { CiCircleQuestion, CiUser } from "react-icons/ci";
 import { useAuth } from "../context/AuthContext";
 import { useLocation } from "../context/LocationContext";
 import { useSeatContext } from "../context/SeatContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { useSocket } from "../context/SocketContext";
+import toast from "react-hot-toast";
 
 function Checkout() {
 
   const navigate = useNavigate();
   const { user } = useAuth();
   const { location } = useLocation();
-  const { selectedSeats, shows } = useSeatContext();
+  const {
+    selectedSeats,
+    shows,
+    checkoutExpiresAt,
+    setSelectedSeats,
+    setShows,
+    setCheckoutExpiresAt,
+  } = useSeatContext();
   const { base, tax, total } = calculateTotalPrice(selectedSeats);
+  const { socket } = useSocket();
 
-  // Guard effect: redirect to home if no show or seats selected
-  // Only runs on mount to prevent infinite redirects
+  const getInitialTimeLeft = () => {
+    if (!checkoutExpiresAt) {
+      return 300;
+    }
+
+    const expiresAt = new Date(checkoutExpiresAt).getTime();
+    const diffSeconds = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
+    return diffSeconds > 0 ? diffSeconds : 0;
+  };
+
+  const [timeLeft, setTimeLeft] = useState<number>(getInitialTimeLeft);
+
   useEffect(() => {
     if (!shows || selectedSeats.length === 0) {
       void navigate("/");
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    const expire = () => {
+      if (socket) {
+        socket.send(
+          JSON.stringify({
+            type: "unlock-seats",
+            showId: shows.id,
+            seatIds: selectedSeats.map((seat) => seat.seatId),
+            userId: user?.id,
+          }),
+        );
+      }
+
+      setSelectedSeats([]);
+      setShows(null);
+      setCheckoutExpiresAt(null);
+      toast.error("Time expired!");
+      void navigate("/");
+    };
+
+    if (timeLeft <= 0) {
+      expire();
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setTimeLeft((prev): number => {
+        if (prev <= 1) {
+          expire();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [checkoutExpiresAt, navigate, selectedSeats, shows, socket, user, setSelectedSeats, setShows, setCheckoutExpiresAt]);
 
   return (
     <div className="min-h-screen w-full bg-white">
       <Header type="checkout" />
 
       <div className="max-w-6xl mx-auto px-4 py-6">
+        <p className="text-red-500 text-center mb-3 text-lg border rounded-[14px] border-dashed py-2 font-semibold">
+          Time left: {String(Math.floor(timeLeft / 60)).padStart(2, "0")}:
+          {String(timeLeft % 60).padStart(2, "0")}
+        </p>
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Left Part */}
           <div className="flex-1 space-y-4">

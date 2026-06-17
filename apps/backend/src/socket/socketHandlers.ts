@@ -7,6 +7,54 @@ import redis from "../config/redis.js";
 
 const rooms = new Map<string, Set<WebSocket>>();
 
+// // Periodically clean up expired locks from the Redis "locked-seats:<showId>" set
+// // and notify connected clients about released seats.
+// const CLEANUP_INTERVAL_MS = 30_000; // 30 seconds
+
+// async function cleanupExpiredLocks() {
+//   try {
+//     for (const showId of rooms.keys()) {
+//       const lockedSeatsKey = `locked-seats:${showId}`;
+//       const seatIds = await redis.smembers(lockedSeatsKey);
+
+//       const expired: string[] = [];
+
+//       for (const seatId of seatIds) {
+//         const seatLockKey = `seat-lock:${showId}:${seatId}`;
+//         const exists = await redis.get(seatLockKey);
+//         if (!exists) {
+//           expired.push(seatId);
+//         }
+//       }
+
+//       if (expired.length > 0) {
+//         await redis.srem(lockedSeatsKey, ...expired);
+
+//         const payload = JSON.stringify({
+//           type: "seat-unlocked",
+//           showId,
+//           seatIds: expired,
+//         });
+
+//         const room = rooms.get(showId);
+//         if (room) {
+//           room.forEach((client) => {
+//             if (client.readyState === WebSocket.OPEN) {
+//               client.send(payload);
+//             }
+//           });
+//         }
+//       }
+//     }
+//   } catch (err) {
+//     console.error("Error during expired lock cleanup", err);
+//   }
+// }
+
+// setInterval(() => {
+//   void cleanupExpiredLocks();
+// }, CLEANUP_INTERVAL_MS);
+
 type SocketWithShowId = WebSocket & { showId?: string };
 
 export const socketHandlers = (socket: WebSocket, _server: WebSocketServer) => {
@@ -58,16 +106,31 @@ export const socketHandlers = (socket: WebSocket, _server: WebSocketServer) => {
             console.log(`User joined room: ${showId}`);
 
             /**
-             * Fetch all locked seats from Redis SET
-             * Example key:
-             * locked-seats:show123 -> ["A1","A2","B5"]
+             * Fetch all locked seats from Redis SET and validate each
+             * against the per-seat lock key. Remove any stale entries
+             * (where the seat-lock:<showId>:<seatId> key has expired)
+             * so UI won't show seats that are no longer locked.
              */
-            const lockedSeats = await redis.smembers(`locked-seats:${showId}`);
+            const lockedSeatsKey = `locked-seats:${showId}`;
+            const lockedSeats = await redis.smembers(lockedSeatsKey);
+
+            const validSeats: string[] = [];
+
+            for (const seatId of lockedSeats) {
+              const seatLockKey = `seat-lock:${showId}:${seatId}`;
+              const exists = await redis.get(seatLockKey);
+              if (exists) {
+                validSeats.push(seatId);
+              } else {
+                // remove stale member from the set
+                await redis.srem(lockedSeatsKey, seatId);
+              }
+            }
 
             // Broadcast active locked seats to everyone in the room
             const payload = JSON.stringify({
               type: "locked-seats-initials",
-              seatIds: lockedSeats,
+              seatIds: validSeats,
             });
 
             room.forEach((client) => {
@@ -146,6 +209,58 @@ export const socketHandlers = (socket: WebSocket, _server: WebSocketServer) => {
 
             const payload = JSON.stringify({
               type: "seat-locked",
+              showId,
+              userId,
+              seatIds,
+            });
+
+            room.forEach((client) => {
+              if (client.readyState === WebSocket.OPEN) {
+                client.send(payload);
+              }
+            });
+
+            break;
+          }
+
+          /* UNLOCK SEATS
+           * Triggered when:
+           * - User leaves checkout or Checkout time expired
+           * - User cancels booking
+           */
+
+          case "unlock-seats": {
+            const { showId, seatIds, userId } = msg;
+
+            if (!showId || !userId || seatIds.length <= 0) {
+              return;
+            }
+
+            const lockedSeatsKeys = `locked-seats:${showId}`;
+
+            for (const seatId of seatIds) {
+              const seatLockKey = `seat-lock:${showId}:${seatId}`;
+
+              // remove indivisual seat lock
+              await redis.del(seatLockKey);
+
+              /**
+               * Remove seat from locked SET
+               */
+
+              await redis.srem(lockedSeatsKeys, seatId);
+            }
+
+            // broadcast to the user in the same room/show
+            let room = rooms.get(showId);
+
+            if (!room) {
+              room = new Set();
+              rooms.set(showId, room);
+            }
+
+            const payload = JSON.stringify({
+              type: "seat-unlocked",
               showId,
               userId,
               seatIds,

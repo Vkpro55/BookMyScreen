@@ -105,6 +105,39 @@ function SeatLayout() {
             break;
           }
 
+          case "seat-locked": {
+            const seatIds = message.seatIds as string[];
+            const incomingShowId = message.showId as string;
+
+            if (incomingShowId !== showId) {
+              return;
+            }
+
+            setLockedSeats((prev) => [...new Set<string>([...(prev ?? []), ...seatIds])]);
+
+            break;
+          }
+
+          case "seat-locked-failed": {
+            const alreadyLocked = message.alreadyLocked as string[] | undefined;
+            if (alreadyLocked && alreadyLocked.length > 0) {
+              // remove locked seats from user's selection and mark them locked
+              setSelectedSeats((prev) => prev.filter((s) => !alreadyLocked.includes(s.seatId)));
+              setLockedSeats((prev) => [...new Set<string>([...(prev ?? []), ...alreadyLocked])]);
+              // notify user
+              alert(`Some seats are no longer available: ${alreadyLocked.join(", ")}`);
+            }
+            break;
+          }
+
+          case "seat-unlocked": {
+            const seatIds = message.seatIds as string[] | undefined;
+            if (seatIds && seatIds.length > 0) {
+              setLockedSeats((prev) => (prev ?? []).filter((id) => !seatIds.includes(id)));
+            }
+            break;
+          }
+
           default:
             break;
         }

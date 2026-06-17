@@ -12,6 +12,17 @@ const LockSeatsSchema = z.object({
   userId: z.string(),
 });
 
-export const MessageSchema = z.union([JoinShowSchema, LockSeatsSchema]);
+const UnlockedSeatsSchema = z.object({
+  type: z.literal("unlock-seats"),
+  showId: z.string(),
+  seatIds: z.array(z.string()),
+  userId: z.string(),
+});
+
+export const MessageSchema = z.union([
+  JoinShowSchema,
+  LockSeatsSchema,
+  UnlockedSeatsSchema,
+]);
 
 export type Message = z.infer<typeof MessageSchema>;
