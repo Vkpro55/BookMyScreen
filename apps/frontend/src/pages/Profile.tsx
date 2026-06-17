@@ -14,7 +14,7 @@ function Profile() {
 
   const handleLogOut = () => {
     logoutRequest();
-  }
+  };
 
   return (
     <>
@@ -47,7 +47,10 @@ function Profile() {
 
                 <div className="ml-2">
                   <h2 className="text-2xl font-bold">Hi, {user?.name}</h2>
-                  <small className="underline cursor-pointer" onClick={handleLogOut}>
+                  <small
+                    className="underline cursor-pointer"
+                    onClick={handleLogOut}
+                  >
                     <Icon
                       Icon={IoIosLogOut}
                       className="inline mr-1"

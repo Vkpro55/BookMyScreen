@@ -12,7 +12,6 @@ import { useSocket } from "../context/SocketContext";
 import toast from "react-hot-toast";
 
 function Checkout() {
-
   const navigate = useNavigate();
   const { user } = useAuth();
   const { location } = useLocation();
@@ -80,7 +79,17 @@ function Checkout() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [checkoutExpiresAt, navigate, selectedSeats, shows, socket, user, setSelectedSeats, setShows, setCheckoutExpiresAt]);
+  }, [
+    checkoutExpiresAt,
+    navigate,
+    selectedSeats,
+    shows,
+    socket,
+    user,
+    setSelectedSeats,
+    setShows,
+    setCheckoutExpiresAt,
+  ]);
 
   return (
     <div className="min-h-screen w-full bg-white">
@@ -105,8 +114,7 @@ function Checkout() {
                 <h3 className="font-semibold text-lg">{shows?.movie.title}</h3>
                 <p className="text-sm text-gray-600">
                   {shows?.movie.certification} •{" "}
-                  {shows?.movie.languages.join(", ")} •{" "}
-                  {shows?.movie.format}
+                  {shows?.movie.languages.join(", ")} • {shows?.movie.format}
                 </p>
                 <p className="text-sm text-gray-600">
                   {shows?.screen.theater.name}, {shows?.screen.theater.city},{" "}
@@ -122,7 +130,8 @@ function Checkout() {
                   .split(" ")
                   .slice(0, 2)
                   .join(" ")}{" "}
-                &nbsp;• <span className="font-semibold">{shows?.startTime}</span>
+                &nbsp;•{" "}
+                <span className="font-semibold">{shows?.startTime}</span>
               </p>
               <div className="flex items-center justify-between mt-4 mb-4">
                 <div>
@@ -134,12 +143,12 @@ function Checkout() {
                       {groupSeatsByType(selectedSeats).map(
                         ({ type, seats }) => (
                           <div key={type} className="font-medium">
-                            <p className="inline mr-2 text-gray-800">{type} - </p>
+                            <p className="inline mr-2 text-gray-800">
+                              {type} -{" "}
+                            </p>
                             <ul className="inline-flex gap-1">
                               {seats.map((seat) => (
-                                <li key={seat.seatNumber}>
-                                  {seat.seatNumber}
-                                </li>
+                                <li key={seat.seatNumber}>{seat.seatNumber}</li>
                               ))}
                             </ul>
                           </div>

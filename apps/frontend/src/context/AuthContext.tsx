@@ -73,13 +73,19 @@ export const AuthProvider = ({ children }: IProps) => {
   const [auth, setAuth] = useState<boolean | null>(null);
 
   // Memoize setters to prevent unnecessary effect re-runs
-  const memoizedSetUser = useCallback<Dispatch<SetStateAction<User | null>>>((value) => {
-    setUser(value);
-  }, []);
+  const memoizedSetUser = useCallback<Dispatch<SetStateAction<User | null>>>(
+    (value) => {
+      setUser(value);
+    },
+    [],
+  );
 
-  const memoizedSetAuth = useCallback<Dispatch<SetStateAction<boolean | null>>>((value) => {
-    setAuth(value);
-  }, []);
+  const memoizedSetAuth = useCallback<Dispatch<SetStateAction<boolean | null>>>(
+    (value) => {
+      setAuth(value);
+    },
+    [],
+  );
 
   const sendOtpRequestMutation = useMutation<
     SendOtpResponse,
@@ -114,7 +120,7 @@ export const AuthProvider = ({ children }: IProps) => {
   });
 
   const toggleModal = () => {
-    setShowModal(!showModal)
+    setShowModal(!showModal);
     if (step !== 1) {
       setStep(1);
     }
@@ -219,7 +225,7 @@ export const AuthProvider = ({ children }: IProps) => {
         setUser: memoizedSetUser,
         auth,
         setAuth: memoizedSetAuth,
-        otpLoader: sendOtpRequestMutation.isPending
+        otpLoader: sendOtpRequestMutation.isPending,
       }}
     >
       {children}

@@ -32,5 +32,5 @@ createRoot(rootEl).render(
         </SeatContextProvider>
       </LocationProvider>
     </AuthProvider>
-  </QueryClientProvider>
+  </QueryClientProvider>,
 );

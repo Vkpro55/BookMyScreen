@@ -11,7 +11,7 @@ function StepAccountCreation() {
   const handleActivateAccount = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    activateUserRequest({ name, phone })
+    activateUserRequest({ name, phone });
   };
 
   return (

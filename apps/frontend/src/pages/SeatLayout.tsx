@@ -14,7 +14,6 @@ import { useSocket } from "../context/SocketContext";
 
 /* eslint-disable no-console */
 
-
 function groupRowsByPrice(rows: ShowRowWithSeats[]) {
   return rows.reduce<
     Record<number, { price: number; rows: ShowRowWithSeats[] }>
@@ -84,7 +83,7 @@ function SeatLayout() {
         JSON.stringify({
           type: "join-show",
           showId,
-        })
+        }),
       );
     };
 
@@ -113,7 +112,9 @@ function SeatLayout() {
               return;
             }
 
-            setLockedSeats((prev) => [...new Set<string>([...(prev ?? []), ...seatIds])]);
+            setLockedSeats((prev) => [
+              ...new Set<string>([...(prev ?? []), ...seatIds]),
+            ]);
 
             break;
           }
@@ -122,10 +123,16 @@ function SeatLayout() {
             const alreadyLocked = message.alreadyLocked as string[] | undefined;
             if (alreadyLocked && alreadyLocked.length > 0) {
               // remove locked seats from user's selection and mark them locked
-              setSelectedSeats((prev) => prev.filter((s) => !alreadyLocked.includes(s.seatId)));
-              setLockedSeats((prev) => [...new Set<string>([...(prev ?? []), ...alreadyLocked])]);
+              setSelectedSeats((prev) =>
+                prev.filter((s) => !alreadyLocked.includes(s.seatId)),
+              );
+              setLockedSeats((prev) => [
+                ...new Set<string>([...(prev ?? []), ...alreadyLocked]),
+              ]);
               // notify user
-              alert(`Some seats are no longer available: ${alreadyLocked.join(", ")}`);
+              alert(
+                `Some seats are no longer available: ${alreadyLocked.join(", ")}`,
+              );
             }
             break;
           }
@@ -133,7 +140,9 @@ function SeatLayout() {
           case "seat-unlocked": {
             const seatIds = message.seatIds as string[] | undefined;
             if (seatIds && seatIds.length > 0) {
-              setLockedSeats((prev) => (prev ?? []).filter((id) => !seatIds.includes(id)));
+              setLockedSeats((prev) =>
+                (prev ?? []).filter((id) => !seatIds.includes(id)),
+              );
             }
             break;
           }
@@ -146,7 +155,6 @@ function SeatLayout() {
       }
     };
 
-
     ws.onerror = (e) => {
       console.error("WS Error", e);
     };
@@ -155,9 +163,7 @@ function SeatLayout() {
       console.log("WS Closed", e.code, e.reason);
     };
 
-
     setSocket(ws);
-
   }, [showId]);
 
   if (isLoading || !showData) {
@@ -170,8 +176,10 @@ function SeatLayout() {
 
   const priceGroups = groupRowsByPrice(showData.rows);
 
-
-  console.log("Current all ocked seats are returned by websocket server: ", lockedSeats);
+  console.log(
+    "Current all ocked seats are returned by websocket server: ",
+    lockedSeats,
+  );
 
   return (
     <div className="h-screen overflow-y-hidden">
@@ -230,7 +238,12 @@ function SeatLayout() {
       </div>
 
       <div className="fixed bottom-0 left-0 w-full z-10 h-[100px] bg-white border-t border-gray-200 p-4">
-        <Footer selectedCount={selectedSeats.length} state={location} showData={showData} selectedSeats={selectedSeats} />
+        <Footer
+          selectedCount={selectedSeats.length}
+          state={location}
+          showData={showData}
+          selectedSeats={selectedSeats}
+        />
       </div>
     </div>
   );

@@ -10,7 +10,6 @@ function StepOtp({ onNext }: { onNext: () => void }) {
 
   const { verifyOtpRequest } = useAuth();
 
-
   const { displayTime, isExpired } = useCountdown({
     initialTimeInSeconds: 2 * 60,
   });
@@ -19,7 +18,7 @@ function StepOtp({ onNext }: { onNext: () => void }) {
     e.preventDefault();
 
     const otp = otpArray.join("");
-    verifyOtpRequest({ otp, onNext })
+    verifyOtpRequest({ otp, onNext });
   };
 
   const handleOtpChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {

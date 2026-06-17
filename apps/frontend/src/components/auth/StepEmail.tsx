@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { MouseEvent } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { BeatLoader } from 'react-spinners';
+import { BeatLoader } from "react-spinners";
 
 function StepEmail({ onNext }: { onNext: () => void }) {
   const [email, setEmail] = useState<string>("");
@@ -10,9 +10,9 @@ function StepEmail({ onNext }: { onNext: () => void }) {
   const handleSendOtp = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    if (!email) return
+    if (!email) return;
 
-    sendOtpRequest({ email, onNext })
+    sendOtpRequest({ email, onNext });
   };
 
   return (

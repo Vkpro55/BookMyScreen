@@ -10,10 +10,14 @@ interface FooterProps {
   state: string;
   showData: ShowBookingDetails;
   selectedSeats: SelectedSeat[];
-};
+}
 
-function Footer({ selectedCount, state, showData, selectedSeats }: FooterProps) {
-
+function Footer({
+  selectedCount,
+  state,
+  showData,
+  selectedSeats,
+}: FooterProps) {
   const navigate = useNavigate();
 
   const { setShows, setCheckoutExpiresAt } = useSeatContext();
@@ -40,7 +44,7 @@ function Footer({ selectedCount, state, showData, selectedSeats }: FooterProps) 
     setShows(showData);
     setCheckoutExpiresAt(expiration);
     void navigate(`/shows/${showData.id}/${state}/checkout`);
-  }
+  };
 
   return selectedCount > 0 ? (
     <div className="bg-white py-3 px-6 flex items-center justify-between z-10">

@@ -53,16 +53,23 @@ function Header() {
               {location && <p>{location}</p>}
               <Icon variant="muted" Icon={MdOutlineArrowDropDown} />
             </div>
-            {auth ? (<>
-              <span className="cursor-pointer text-sm font-medium border rounded-full border-gray-300 p-2">
-                <FaUser className="text-gray-500" />
-              </span>
-              <span onClick={() => navigate(`/profile/${user?.id}`)} className="text-sm -ml-3 font-normal cursor-pointer hover:text-red-500">
-                Hi, {user ? user.name : "Test User"} &nbsp; ▼
-              </span>
-            </>) : (<Button type="primary" clickHandler={toggleModal}>
-              Sign in
-            </Button>)}
+            {auth ? (
+              <>
+                <span className="cursor-pointer text-sm font-medium border rounded-full border-gray-300 p-2">
+                  <FaUser className="text-gray-500" />
+                </span>
+                <span
+                  onClick={() => navigate(`/profile/${user?.id}`)}
+                  className="text-sm -ml-3 font-normal cursor-pointer hover:text-red-500"
+                >
+                  Hi, {user ? user.name : "Test User"} &nbsp; ▼
+                </span>
+              </>
+            ) : (
+              <Button type="primary" clickHandler={toggleModal}>
+                Sign in
+              </Button>
+            )}
           </div>
         </div>
       </div>

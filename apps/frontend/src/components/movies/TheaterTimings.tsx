@@ -89,7 +89,7 @@ function TheaterTimings({ movideId }: { movideId: string }) {
                         }
                         void navigate(
                           `/movies/${movieId}/${movieName}/${location}/theater/${theaterId}/show/${showId}/seat-layout`,
-                        )
+                        );
                       }}
                       key={index}
                       className="border cursor-pointer hover:bg-gray-100 border-gray-300 rounded-[16px] px-12 py-2 text-sm flex flex-col items-center justify-center min-w-[100px] max-w-[100px] md:min-w-[200px]"
