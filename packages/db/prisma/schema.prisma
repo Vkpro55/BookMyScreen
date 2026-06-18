@@ -151,6 +151,46 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
+model PaymentOrder {
+  id                String             @id @default(cuid())
+  amount            Int
+  currency          String             @default("INR")
+  receipt           String             @unique
+  razorpayOrderId   String?            @unique
+  razorpayPaymentId String?            @unique
+  idempotencyKey    String             @unique
+  requestHash       String
+  status            PaymentOrderStatus @default(PROCESSING)
+  rawResponse       Json?
+  lastWebhookEvent  String?
+  lastError         String?
+  lastReconciledAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  webhookEvents PaymentWebhookEvent[]
+
+  @@map("payment_orders")
+}
+
+model PaymentWebhookEvent {
+  id             String   @id @default(cuid())
+  eventId        String   @unique
+  eventType      String
+  razorpayOrderId String?
+  razorpayPaymentId String?
+  payload        Json
+  processedAt    DateTime @default(now())
+
+  paymentOrderId String?
+  paymentOrder   PaymentOrder? @relation(fields: [paymentOrderId], references: [id])
+
+  @@index([razorpayOrderId])
+  @@index([razorpayPaymentId])
+  @@map("payment_webhook_events")
+}
+
 enum Format {
   TWO_D
   THREE_D
@@ -167,4 +207,14 @@ enum SeatStatus {
 enum Role {
   admin
   user
+}
+
+enum PaymentOrderStatus {
+  PROCESSING
+  UNKNOWN
+  CREATED
+  ATTEMPTED
+  AUTHORIZED
+  PAID
+  FAILED
 }

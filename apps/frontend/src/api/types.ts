@@ -152,6 +152,32 @@ export interface UpdateSeatStatusInput {
   status: SeatStatus;
 }
 
+export interface CreatePaymentOrderInput {
+  amount: number;
+  idempotencyKey: string;
+}
+
+export interface VerifyPaymentInput {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
+export interface PaymentOrder {
+  id: string;
+  amount: number;
+  currency: string;
+  receipt: string;
+  status:
+    | "PROCESSING"
+    | "UNKNOWN"
+    | "CREATED"
+    | "ATTEMPTED"
+    | "AUTHORIZED"
+    | "PAID"
+    | "FAILED";
+}
+
 // ── User / Auth ──
 export type Role = "admin" | "user";
 

@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import "dotenv/config"
 import Header from "../components/seatlayout/Header";
 import { calculateTotalPrice, groupSeatsByType } from "../utils";
 import { FaInfoCircle } from "react-icons/fa";
@@ -10,6 +11,83 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useSocket } from "../context/SocketContext";
 import toast from "react-hot-toast";
+import { createPaymentOrder, verifyPayment } from "../api";
+
+const RAZORPAY_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
+
+interface RazorpaySuccessResponse {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
+interface RazorpayFailureResponse {
+  error?: {
+    description?: string;
+  };
+}
+
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  order_id: string;
+  handler: (response: RazorpaySuccessResponse) => void | Promise<void>;
+  prefill?: {
+    name?: string;
+    email?: string;
+    contact?: string | null;
+  };
+  theme?: {
+    color?: string;
+  };
+  modal?: {
+    ondismiss?: () => void;
+  };
+}
+
+interface RazorpayCheckout {
+  open: () => void;
+  on: (
+    event: "payment.failed",
+    callback: (response: RazorpayFailureResponse) => void,
+  ) => void;
+}
+
+declare global {
+  interface Window {
+    Razorpay?: new (options: RazorpayOptions) => RazorpayCheckout;
+  }
+}
+
+const loadRazorpayScript = async (): Promise<boolean> => {
+  if (window.Razorpay) return true;
+
+  const existingScript = document.querySelector<HTMLScriptElement>(
+    `script[src="${RAZORPAY_SCRIPT_URL}"]`,
+  );
+
+  if (existingScript) {
+    return new Promise((resolve) => {
+      existingScript.addEventListener("load", () => resolve(true), {
+        once: true,
+      });
+      existingScript.addEventListener("error", () => resolve(false), {
+        once: true,
+      });
+    });
+  }
+
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = RAZORPAY_SCRIPT_URL;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
 function Checkout() {
   const navigate = useNavigate();
@@ -25,6 +103,7 @@ function Checkout() {
   } = useSeatContext();
   const { base, tax, total } = calculateTotalPrice(selectedSeats);
   const { socket } = useSocket();
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
   const getInitialTimeLeft = () => {
     if (!checkoutExpiresAt) {
@@ -37,6 +116,81 @@ function Checkout() {
   };
 
   const [timeLeft, setTimeLeft] = useState<number>(getInitialTimeLeft);
+
+  const createIdempotencyKey = () => {
+    return [
+      "payment",
+      user?.id ?? "guest",
+      shows?.id ?? "show",
+      checkoutExpiresAt ?? "checkout",
+    ].join(":");
+  };
+
+  const handleProceedToPay = async () => {
+    if (!shows || selectedSeats.length === 0 || isCreatingOrder) return;
+
+    try {
+      setIsCreatingOrder(true);
+      const isScriptLoaded = await loadRazorpayScript();
+
+      if (!isScriptLoaded || !window.Razorpay) {
+        toast.error("Razorpay SDK failed to load. Check your connection.");
+        return;
+      }
+
+      const razorpayKeyId =
+        import.meta.env.VITE_RAZORPAY_KEY_ID as string;
+
+      if (!razorpayKeyId) {
+        toast.error("Razorpay key is missing in frontend env.");
+        return;
+      }
+
+      const order = await createPaymentOrder({
+        amount: Math.round(total * 100),
+        idempotencyKey: createIdempotencyKey(),
+      });
+
+      if (!order.id) {
+        toast.error("Payment order is not ready. Please retry.");
+        return;
+      }
+
+      const razorpay = new window.Razorpay({
+        key: razorpayKeyId,
+        amount: order.amount,
+        currency: order.currency,
+        name: "BookMyScreen",
+        description: "Secure Payment for Your Booking",
+        order_id: order.id,
+        handler: async (response) => {
+          await verifyPayment(response);
+          toast.success("Payment verified successfully");
+        },
+        prefill: {
+          name: user?.name,
+          email: user?.email,
+          contact: user?.phone,
+        },
+        theme: { color: "#111827" },
+        modal: {
+          ondismiss: () => toast.error("Payment cancelled"),
+        },
+      });
+
+      razorpay.on("payment.failed", (response) => {
+        toast.error(response.error?.description ?? "Payment failed");
+      });
+
+      razorpay.open();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Unable to create payment",
+      );
+    } finally {
+      setIsCreatingOrder(false);
+    }
+  };
 
   useEffect(() => {
     if (!shows || selectedSeats.length === 0) {
@@ -213,12 +367,19 @@ function Checkout() {
               </p>
             </div>
 
-            <div className="flex justify-between items-center bg-black rounded-[24px] px-6 py-4 cursor-pointer">
+            <button
+              type="button"
+              onClick={handleProceedToPay}
+              disabled={isCreatingOrder}
+              className="w-full flex justify-between items-center bg-black rounded-[24px] px-6 py-4 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+            >
               <p className="text-white font-bold">
                 ₹{total} <span className="text-xs font-medium">TOTAL</span>
               </p>
-              <p className="text-white font-medium">Proceed To Pay</p>
-            </div>
+              <p className="text-white font-medium">
+                {isCreatingOrder ? "Creating Order..." : "Proceed To Pay"}
+              </p>
+            </button>
           </div>
         </div>
       </div>

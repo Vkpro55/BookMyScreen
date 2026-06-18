@@ -5,6 +5,7 @@ import theaterRouter from "../modules/theatre/theater.route.js";
 import showRouter from "../modules/show/show.route.js";
 import userRouter from "../modules/user/user.route.js";
 import authRouter from "../modules/auth/auth.route.js";
+import paymentRouter from "../modules/payment/payment.route.js";
 
 const router: Router = express.Router();
 
@@ -13,5 +14,6 @@ router.use("/theaters", theaterRouter);
 router.use("/shows", showRouter);
 router.use("/users", userRouter);
 router.use("/auth", authRouter);
+router.use("/payments", paymentRouter);
 
 export default router;

@@ -6,6 +6,7 @@ import router from "./routes/index.js";
 import { globalErrorHandler } from "./middlewares/error.middleware.js";
 
 const app: Express = express();
+app.use("/api/v1/payments/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 app.use(cookieParser());
 

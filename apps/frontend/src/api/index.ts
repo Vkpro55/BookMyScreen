@@ -19,6 +19,9 @@ import type {
   VerifyOtpResponse,
   ActivateUserInput,
   LogoutResponse,
+  CreatePaymentOrderInput,
+  VerifyPaymentInput,
+  PaymentOrder,
 } from "./types";
 
 export { ApiRequestError };
@@ -119,6 +122,12 @@ export interface UpdatedShowSeat {
 
 export const updateSeatStatus = (body: UpdateSeatStatusInput) =>
   getData<UpdatedShowSeat>(axiosWrapper.patch("/shows/seats/status", body));
+
+export const createPaymentOrder = (body: CreatePaymentOrderInput) =>
+  getData<PaymentOrder>(axiosWrapper.post("/payments/orders", body));
+
+export const verifyPayment = (body: VerifyPaymentInput) =>
+  getData<PaymentOrder>(axiosWrapper.post("/payments/verify", body));
 
 // ── Auth ────────────────────────────────────────────
 

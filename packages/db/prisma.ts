@@ -39,6 +39,8 @@ export type {
   ShowSeat,
   User,
   RefreshToken,
+  PaymentOrder,
+  PaymentWebhookEvent,
 } from "@prisma/client";
 
-export { Format, SeatStatus, Role, Prisma } from "@prisma/client";
+export { Format, SeatStatus, Role, PaymentOrderStatus, Prisma } from "@prisma/client";
