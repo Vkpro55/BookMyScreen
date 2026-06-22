@@ -13,6 +13,7 @@ export const config: Readonly<{
   razorpay_key_id: string;
   razprpay_key_secret: string;
   razorpay_webhook_secret: string;
+  allowed_origins: string[];
 }> = {
   port: Number(process.env.PORT) || 3000,
   access_jwt_secret: process.env.ACCESS_TOKEN_SECRET ?? "",
@@ -25,4 +26,8 @@ export const config: Readonly<{
   razorpay_key_id: process.env.RAZORPAY_KEY_ID ?? "",
   razprpay_key_secret: process.env.RAZORPAY_KEY_SECRET ?? "",
   razorpay_webhook_secret: process.env.RAZORPAY_WEBHOOK_SECRET ?? "",
+  allowed_origins: (process.env.ALLOWED_ORIGINS ?? "http://localhost:5173")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
 };

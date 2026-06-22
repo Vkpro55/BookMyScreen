@@ -12,7 +12,7 @@ function startServer() {
   const httpServer = http.createServer(app);
 
   // Create the WebSocket Server instance, passing the HTTP server
-  const allowedOrigins = ["http://localhost:5173"];
+  const allowedOrigins = config.allowed_origins;
 
   const wss = new WebSocketServer({
     server: httpServer,

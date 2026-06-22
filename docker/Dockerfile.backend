@@ -1,0 +1,21 @@
+FROM node:20-alpine
+
+WORKDIR /usr/src/app
+ENV HUSKY=0
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY apps ./apps
+COPY packages ./packages
+
+RUN npm install -g pnpm@9.0.0
+RUN pnpm install --frozen-lockfile
+
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+
+RUN pnpm run db:generate
+RUN pnpm run db:build
+RUN pnpm run backend:build
+
+EXPOSE 3000
+CMD ["pnpm", "run", "backend:start"]

@@ -71,7 +71,7 @@ function SeatLayout() {
       return;
     }
 
-    const ws = new WebSocket("ws://localhost:3000");
+    const ws = new WebSocket("ws://localhost:4000");
 
     console.log("Socket state:", ws.readyState);
 

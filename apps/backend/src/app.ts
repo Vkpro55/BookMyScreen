@@ -9,6 +9,7 @@ import type { JsonObject } from "swagger-ui-express";
 import fs from "node:fs";
 import path from "node:path";
 import YAML from "yaml";
+import { config } from "./config/config.js";
 
 const app: Express = express();
 
@@ -47,7 +48,7 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: ["http://localhost:5173"],
+    origin: config.allowed_origins,
   }),
 );
 

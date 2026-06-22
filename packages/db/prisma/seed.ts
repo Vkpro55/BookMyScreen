@@ -2,6 +2,8 @@ import prisma, { Format, SeatStatus } from "../prisma.js";
 
 /* eslint-disable no-console */
 
+console.log("🌱 Starting seed...");
+
 const rowPriceMap: Record<string, number> = {
   A: 270,
   B: 290,
@@ -22,6 +24,10 @@ const parseDuration = (durationStr: string): number => {
 async function main(): Promise<void> {
   console.log("Cleaning database...");
 
+  await prisma.bookingFee.deleteMany();
+  await prisma.booking.deleteMany();
+  await prisma.paymentWebhookEvent.deleteMany();
+  await prisma.paymentOrder.deleteMany();
   await prisma.showSeat.deleteMany();
   await prisma.show.deleteMany();
   await prisma.seat.deleteMany();
@@ -432,3 +438,5 @@ main()
     console.log("Disconnecting from database...");
     await prisma.$disconnect();
   });
+
+console.log("✅ Seed completed");
