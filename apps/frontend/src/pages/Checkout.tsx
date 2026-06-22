@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-import "dotenv/config"
 import Header from "../components/seatlayout/Header";
 import { calculateTotalPrice, groupSeatsByType } from "../utils";
 import { FaInfoCircle } from "react-icons/fa";
@@ -11,9 +10,16 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useSocket } from "../context/SocketContext";
 import toast from "react-hot-toast";
-import { createPaymentOrder, verifyPayment } from "../api";
+import {
+  createBooking,
+  createPaymentOrder,
+  reconcilePaymentOrder,
+  verifyPayment,
+} from "../api";
+import type { PaymentOrder, PaymentOrderStatus } from "../api/types";
 
 const RAZORPAY_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
+const PAYMENT_RECOVERY_KEY = "book-my-screen-payment-recovery-key";
 
 interface RazorpaySuccessResponse {
   razorpay_order_id: string;
@@ -24,6 +30,10 @@ interface RazorpaySuccessResponse {
 interface RazorpayFailureResponse {
   error?: {
     description?: string;
+    metadata?: {
+      order_id?: string;
+      payment_id?: string;
+    };
   };
 }
 
@@ -93,6 +103,7 @@ function Checkout() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { location } = useLocation();
+
   const {
     selectedSeats,
     shows,
@@ -104,6 +115,13 @@ function Checkout() {
   const { base, tax, total } = calculateTotalPrice(selectedSeats);
   const { socket } = useSocket();
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isReconcilingPayment, setIsReconcilingPayment] = useState(false);
+  const [isFinalizingBooking, setIsFinalizingBooking] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentOrderStatus | null>(
+    null,
+  );
+  const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
 
   const getInitialTimeLeft = () => {
     if (!checkoutExpiresAt) {
@@ -126,22 +144,176 @@ function Checkout() {
     ].join(":");
   };
 
+  const clearCheckoutAndNavigateHome = () => {
+    window.localStorage.removeItem(PAYMENT_RECOVERY_KEY);
+    setSelectedSeats([]);
+    setShows(null);
+    setCheckoutExpiresAt(null);
+    void navigate("/");
+  };
+
+  const isConfirmedPayment = (order: PaymentOrder): boolean => {
+    return order.status === "PAID" || order.status === "AUTHORIZED";
+  };
+
+  const finalizeBooking = async (order: PaymentOrder): Promise<boolean> => {
+    if (!shows || selectedSeats.length === 0) {
+      setPaymentMessage(
+        "Payment is confirmed, but checkout details are missing.",
+      );
+      return false;
+    }
+
+    setIsFinalizingBooking(true);
+    setPaymentMessage("Payment confirmed. Creating your booking...");
+
+    try {
+      const booking = await createBooking({
+        razorpayOrderId: order.razorpayOrderId ?? order.id,
+        showId: shows.id,
+        seats: selectedSeats.map((seat) => ({
+          seatId: seat.seatId,
+          seatNumber: seat.seatNumber,
+        })),
+        paymentMethod: "Razorpay",
+      });
+
+      toast.success(`Booking confirmed: ${booking.bookingRef}`);
+      clearCheckoutAndNavigateHome();
+      return true;
+    } catch (error) {
+      setPaymentStatus("PAID");
+      setPaymentMessage(
+        error instanceof Error
+          ? error.message
+          : "Payment is confirmed, but booking could not be created yet.",
+      );
+      return false;
+    } finally {
+      setIsFinalizingBooking(false);
+    }
+  };
+
+  const handleRecoveredOrder = async (
+    order: PaymentOrder,
+  ): Promise<boolean> => {
+    setPaymentStatus(order.status);
+
+    if (isConfirmedPayment(order)) {
+      return finalizeBooking(order);
+    }
+
+    if (order.status === "FAILED") {
+      setPaymentMessage(
+        "Payment failed. Your seats are still held until the timer ends, so you can retry.",
+      );
+      return false;
+    }
+
+    setPaymentMessage(
+      "Payment status is still being confirmed. You can check again or retry before the timer ends.",
+    );
+    return false;
+  };
+
+  const reconcileCurrentPayment = async (): Promise<boolean> => {
+    setIsReconcilingPayment(true);
+    setPaymentMessage("Checking payment status with the server...");
+
+    try {
+      const order = await reconcilePaymentOrder({
+        idempotencyKey: createIdempotencyKey(),
+      });
+
+      return await handleRecoveredOrder(order);
+    } catch (error) {
+      setPaymentStatus("UNKNOWN");
+      setPaymentMessage(
+        error instanceof Error
+          ? error.message
+          : "Unable to check payment status right now.",
+      );
+      return false;
+    } finally {
+      setIsReconcilingPayment(false);
+    }
+  };
+
+  const handleVerifiedPayment = async (response: RazorpaySuccessResponse) => {
+    setIsPaymentModalOpen(false);
+    setPaymentStatus("PROCESSING");
+    setPaymentMessage("Verifying your payment...");
+
+    try {
+      const order = await verifyPayment(response);
+
+      if (await handleRecoveredOrder(order)) {
+        return;
+      }
+
+      if (order.status === "AUTHORIZED" || order.status === "UNKNOWN") {
+        await reconcileCurrentPayment();
+      }
+    } catch (error) {
+      setPaymentStatus("UNKNOWN");
+      setPaymentMessage(
+        "Payment response was received, but verification did not finish. Checking the gateway status now.",
+      );
+
+      const recovered = await reconcileCurrentPayment();
+
+      if (!recovered) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Payment verification is pending",
+        );
+      }
+    }
+  };
+
+  const handlePaymentFailure = async (response: RazorpayFailureResponse) => {
+    setIsPaymentModalOpen(false);
+    setPaymentStatus("FAILED");
+    setPaymentMessage(
+      response.error?.description ??
+        "Payment failed. You can retry while the seats are still held.",
+    );
+
+    await reconcileCurrentPayment();
+  };
+
   const handleProceedToPay = async () => {
-    if (!shows || selectedSeats.length === 0 || isCreatingOrder) return;
+    if (
+      !shows ||
+      selectedSeats.length === 0 ||
+      isCreatingOrder ||
+      isPaymentModalOpen ||
+      isReconcilingPayment
+    ) {
+      return;
+    }
 
     try {
       setIsCreatingOrder(true);
+      setPaymentStatus("PROCESSING");
+      setPaymentMessage("Creating a secure payment order...");
       const isScriptLoaded = await loadRazorpayScript();
 
       if (!isScriptLoaded || !window.Razorpay) {
+        setPaymentStatus("UNKNOWN");
+        setPaymentMessage(
+          "Razorpay SDK failed to load. Check your connection.",
+        );
         toast.error("Razorpay SDK failed to load. Check your connection.");
         return;
       }
 
-      const razorpayKeyId =
-        import.meta.env.VITE_RAZORPAY_KEY_ID as string;
+      const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID as string;
 
       if (!razorpayKeyId) {
+        setPaymentStatus("UNKNOWN");
+        setPaymentMessage("Razorpay key is missing in frontend env.");
         toast.error("Razorpay key is missing in frontend env.");
         return;
       }
@@ -152,10 +324,15 @@ function Checkout() {
       });
 
       if (!order.id) {
+        setPaymentStatus(order.status);
+        setPaymentMessage("Payment order is not ready. Please retry shortly.");
         toast.error("Payment order is not ready. Please retry.");
         return;
       }
 
+      window.localStorage.setItem(PAYMENT_RECOVERY_KEY, createIdempotencyKey());
+
+      // create new razorpay checkout object
       const razorpay = new window.Razorpay({
         key: razorpayKeyId,
         amount: order.amount,
@@ -164,8 +341,7 @@ function Checkout() {
         description: "Secure Payment for Your Booking",
         order_id: order.id,
         handler: async (response) => {
-          await verifyPayment(response);
-          toast.success("Payment verified successfully");
+          await handleVerifiedPayment(response);
         },
         prefill: {
           name: user?.name,
@@ -174,16 +350,31 @@ function Checkout() {
         },
         theme: { color: "#111827" },
         modal: {
-          ondismiss: () => toast.error("Payment cancelled"),
+          ondismiss: () => {
+            setIsPaymentModalOpen(false);
+            setPaymentStatus("ATTEMPTED");
+            setPaymentMessage(
+              "Payment window was closed. Your seats are still held until the timer ends.",
+            );
+            toast.error("Payment cancelled");
+          },
         },
       });
 
       razorpay.on("payment.failed", (response) => {
+        void handlePaymentFailure(response);
         toast.error(response.error?.description ?? "Payment failed");
       });
 
+      setPaymentStatus("CREATED");
+      setPaymentMessage("Opening Razorpay checkout...");
+      setIsPaymentModalOpen(true);
       razorpay.open();
     } catch (error) {
+      setPaymentStatus("UNKNOWN");
+      setPaymentMessage(
+        error instanceof Error ? error.message : "Unable to create payment",
+      );
       toast.error(
         error instanceof Error ? error.message : "Unable to create payment",
       );
@@ -213,6 +404,7 @@ function Checkout() {
       setSelectedSeats([]);
       setShows(null);
       setCheckoutExpiresAt(null);
+      window.localStorage.removeItem(PAYMENT_RECOVERY_KEY);
       toast.error("Time expired!");
       void navigate("/");
     };
@@ -244,6 +436,36 @@ function Checkout() {
     setShows,
     setCheckoutExpiresAt,
   ]);
+
+  useEffect(() => {
+    if (!shows || selectedSeats.length === 0 || paymentMessage) {
+      return;
+    }
+
+    const recoveryKey = window.localStorage.getItem(PAYMENT_RECOVERY_KEY);
+
+    if (recoveryKey !== createIdempotencyKey()) {
+      return;
+    }
+
+    void reconcileCurrentPayment();
+  }, [selectedSeats.length, shows, paymentMessage]);
+
+  const isPaymentBusy =
+    isCreatingOrder ||
+    isPaymentModalOpen ||
+    isReconcilingPayment ||
+    isFinalizingBooking;
+
+  const paymentButtonLabel = isCreatingOrder
+    ? "Creating Order..."
+    : isPaymentModalOpen
+      ? "Payment Window Open"
+      : isReconcilingPayment
+        ? "Checking Status..."
+        : isFinalizingBooking
+          ? "Creating Booking..."
+          : "Proceed To Pay";
 
   return (
     <div className="min-h-screen w-full bg-white">
@@ -367,18 +589,42 @@ function Checkout() {
               </p>
             </div>
 
+            {paymentMessage && (
+              <div className="border border-gray-200 rounded-[24px] px-6 py-5 text-sm">
+                <p className="font-semibold text-gray-900">
+                  Payment status: {paymentStatus ?? "PENDING"}
+                </p>
+                <p className="mt-2 text-gray-600">{paymentMessage}</p>
+                {(paymentStatus === "UNKNOWN" ||
+                  paymentStatus === "AUTHORIZED" ||
+                  paymentStatus === "ATTEMPTED" ||
+                  paymentStatus === "PAID") && (
+                  <button
+                    type="button"
+                    onClick={() => void reconcileCurrentPayment()}
+                    disabled={isPaymentBusy}
+                    className="mt-4 w-full border border-black rounded-[16px] px-4 py-3 text-sm font-medium disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isReconcilingPayment
+                      ? "Checking Status..."
+                      : paymentStatus === "PAID"
+                        ? "Finalize Booking"
+                        : "Check Payment Status"}
+                  </button>
+                )}
+              </div>
+            )}
+
             <button
               type="button"
               onClick={handleProceedToPay}
-              disabled={isCreatingOrder}
+              disabled={isPaymentBusy}
               className="w-full flex justify-between items-center bg-black rounded-[24px] px-6 py-4 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
             >
               <p className="text-white font-bold">
                 ₹{total} <span className="text-xs font-medium">TOTAL</span>
               </p>
-              <p className="text-white font-medium">
-                {isCreatingOrder ? "Creating Order..." : "Proceed To Pay"}
-              </p>
+              <p className="text-white font-medium">{paymentButtonLabel}</p>
             </button>
           </div>
         </div>

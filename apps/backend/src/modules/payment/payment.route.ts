@@ -8,6 +8,10 @@ router.post("/orders", PaymentController.createOrder);
 router.post("/verify", PaymentController.verifyPayment);
 router.post("/webhook", PaymentController.handleWebhook);
 router.post(
+  "/orders/reconcile",
+  PaymentController.reconcileOrderByIdempotencyKey,
+);
+router.post(
   "/orders/:razorpayOrderId/reconcile",
   PaymentController.reconcileOrder,
 );

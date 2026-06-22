@@ -134,3 +134,36 @@ export const reconcileOrder = async (
     next(error);
   }
 };
+
+export const reconcileOrderByIdempotencyKey = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const result = PaymentTypes.PaymentOrderLookupSchema.safeParse(req.body);
+
+    if (!result.success) {
+      const errors: IError[] = result.error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+      }));
+
+      const response: ApiResponse<null> = { success: false, errors };
+      res.status(400).json(response);
+      return;
+    }
+
+    const order = await PaymentService.reconcileOrderByIdempotencyKey(
+      result.data.idempotencyKey,
+    );
+    const response: ApiResponse<typeof order> = {
+      success: true,
+      data: order,
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+};

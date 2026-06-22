@@ -7,54 +7,6 @@ import redis from "../config/redis.js";
 
 const rooms = new Map<string, Set<WebSocket>>();
 
-// // Periodically clean up expired locks from the Redis "locked-seats:<showId>" set
-// // and notify connected clients about released seats.
-// const CLEANUP_INTERVAL_MS = 30_000; // 30 seconds
-
-// async function cleanupExpiredLocks() {
-//   try {
-//     for (const showId of rooms.keys()) {
-//       const lockedSeatsKey = `locked-seats:${showId}`;
-//       const seatIds = await redis.smembers(lockedSeatsKey);
-
-//       const expired: string[] = [];
-
-//       for (const seatId of seatIds) {
-//         const seatLockKey = `seat-lock:${showId}:${seatId}`;
-//         const exists = await redis.get(seatLockKey);
-//         if (!exists) {
-//           expired.push(seatId);
-//         }
-//       }
-
-//       if (expired.length > 0) {
-//         await redis.srem(lockedSeatsKey, ...expired);
-
-//         const payload = JSON.stringify({
-//           type: "seat-unlocked",
-//           showId,
-//           seatIds: expired,
-//         });
-
-//         const room = rooms.get(showId);
-//         if (room) {
-//           room.forEach((client) => {
-//             if (client.readyState === WebSocket.OPEN) {
-//               client.send(payload);
-//             }
-//           });
-//         }
-//       }
-//     }
-//   } catch (err) {
-//     console.error("Error during expired lock cleanup", err);
-//   }
-// }
-
-// setInterval(() => {
-//   void cleanupExpiredLocks();
-// }, CLEANUP_INTERVAL_MS);
-
 type SocketWithShowId = WebSocket & { showId?: string };
 
 export const socketHandlers = (socket: WebSocket, _server: WebSocketServer) => {
@@ -79,8 +31,6 @@ export const socketHandlers = (socket: WebSocket, _server: WebSocketServer) => {
           return;
         }
 
-        console.log("Parsed Data is:", parsed);
-
         // Validate with Zod
         const msg = MessageSchema.parse(parsed);
 
@@ -102,8 +52,6 @@ export const socketHandlers = (socket: WebSocket, _server: WebSocketServer) => {
 
             room.add(socket);
             (socket as SocketWithShowId).showId = showId;
-
-            console.log(`User joined room: ${showId}`);
 
             /**
              * Fetch all locked seats from Redis SET and validate each
@@ -154,10 +102,6 @@ export const socketHandlers = (socket: WebSocket, _server: WebSocketServer) => {
             if (!showId || !userId || seatIds.length <= 0) {
               return;
             }
-
-            console.log("showId", showId);
-            console.log("userid", userId);
-            console.log("seatIds", seatIds);
 
             const lockedSeatsKeys = `locked-seats:${showId}`;
             const unavailableSeats: string[] = [];

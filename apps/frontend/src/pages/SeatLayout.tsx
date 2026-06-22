@@ -76,7 +76,7 @@ function SeatLayout() {
     console.log("Socket state:", ws.readyState);
 
     ws.onopen = () => {
-      console.log("✅ WebSocket connected");
+      console.log("WebSocket connected");
 
       // Send join-show event when connected
       ws.send(

@@ -108,6 +108,7 @@ model Show {
   screen Screen @relation(fields: [screenId], references: [id])
 
   showSeats ShowSeat[]
+  bookings  Booking[]
 
   @@index([movieId])
   @@index([screenId])
@@ -138,6 +139,7 @@ model User {
   role          Role           @default(user)
   activateUser  Boolean        @default(false)
   refreshTokens RefreshToken[]
+  bookings      Booking[]
 
   @@map("users")
 }
@@ -170,18 +172,19 @@ model PaymentOrder {
   updatedAt DateTime @updatedAt
 
   webhookEvents PaymentWebhookEvent[]
+  booking       Booking?
 
   @@map("payment_orders")
 }
 
 model PaymentWebhookEvent {
-  id             String   @id @default(cuid())
-  eventId        String   @unique
-  eventType      String
-  razorpayOrderId String?
+  id                String   @id @default(cuid())
+  eventId           String   @unique
+  eventType         String
+  razorpayOrderId   String?
   razorpayPaymentId String?
-  payload        Json
-  processedAt    DateTime @default(now())
+  payload           Json
+  processedAt       DateTime @default(now())
 
   paymentOrderId String?
   paymentOrder   PaymentOrder? @relation(fields: [paymentOrderId], references: [id])
@@ -189,6 +192,44 @@ model PaymentWebhookEvent {
   @@index([razorpayOrderId])
   @@index([razorpayPaymentId])
   @@map("payment_webhook_events")
+}
+
+model Booking {
+  id              String        @id @default(cuid())
+  bookingRef      String        @unique
+  userId          String
+  showId          String
+  seats           String[]
+  status          BookingStatus @default(CONFIRMED)
+  bookingDateTime DateTime      @default(now())
+  paymentOrderId  String        @unique
+  paymentMethod   String
+
+  bookingFee BookingFee?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id])
+  show         Show         @relation(fields: [showId], references: [id])
+  paymentOrder PaymentOrder @relation(fields: [paymentOrderId], references: [id])
+
+  @@map("bookings")
+}
+
+model BookingFee {
+  id          String @id @default(cuid())
+  ticketPrice Float
+  total       Float
+  convenience Float
+
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("booking_fees")
 }
 
 enum Format {
@@ -217,4 +258,10 @@ enum PaymentOrderStatus {
   AUTHORIZED
   PAID
   FAILED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  FAILED
+  CANCELLED
 }

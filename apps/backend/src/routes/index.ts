@@ -6,6 +6,7 @@ import showRouter from "../modules/show/show.route.js";
 import userRouter from "../modules/user/user.route.js";
 import authRouter from "../modules/auth/auth.route.js";
 import paymentRouter from "../modules/payment/payment.route.js";
+import bookingRouter from "../modules/booking/booking.route.js";
 
 const router: Router = express.Router();
 
@@ -15,5 +16,6 @@ router.use("/shows", showRouter);
 router.use("/users", userRouter);
 router.use("/auth", authRouter);
 router.use("/payments", paymentRouter);
+router.use("/bookings", bookingRouter);
 
 export default router;

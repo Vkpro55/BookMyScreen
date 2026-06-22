@@ -5,8 +5,6 @@ import http from "http";
 import { WebSocketServer } from "ws";
 import { socketHandlers } from "./socket/socketHandlers.js";
 
-/* eslint-disable no-console */
-
 function startServer() {
   const port = config.port;
 
@@ -35,7 +33,6 @@ function startServer() {
   });
 
   wss.on("connection", function connection(ws) {
-    console.log("NEW WS CONNECTION");
     void socketHandlers(ws, wss);
   });
 

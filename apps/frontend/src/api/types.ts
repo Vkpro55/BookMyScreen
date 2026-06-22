@@ -157,25 +157,75 @@ export interface CreatePaymentOrderInput {
   idempotencyKey: string;
 }
 
+export interface ReconcilePaymentOrderInput {
+  idempotencyKey: string;
+}
+
 export interface VerifyPaymentInput {
   razorpay_order_id: string;
   razorpay_payment_id: string;
   razorpay_signature: string;
 }
 
+export type PaymentOrderStatus =
+  | "PROCESSING"
+  | "UNKNOWN"
+  | "CREATED"
+  | "ATTEMPTED"
+  | "AUTHORIZED"
+  | "PAID"
+  | "FAILED";
+
 export interface PaymentOrder {
   id: string;
+  razorpayOrderId?: string | null;
   amount: number;
   currency: string;
   receipt: string;
-  status:
-    | "PROCESSING"
-    | "UNKNOWN"
-    | "CREATED"
-    | "ATTEMPTED"
-    | "AUTHORIZED"
-    | "PAID"
-    | "FAILED";
+  status: PaymentOrderStatus;
+}
+
+export interface CreateBookingInput {
+  razorpayOrderId: string;
+  showId: string;
+  seats: {
+    seatId: string;
+    seatNumber: string;
+  }[];
+  paymentMethod: string;
+}
+
+export interface Booking {
+  id: string;
+  bookingRef: string;
+  status: "CONFIRMED" | "FAILED" | "CANCELLED";
+  seats: string[];
+  bookingDateTime: string;
+  paymentMethod: string;
+  payment: {
+    amount: number;
+    currency: string;
+    status: PaymentOrderStatus;
+    razorpayOrderId: string | null;
+    razorpayPaymentId: string | null;
+  };
+  fee: {
+    ticketPrice: number;
+    convenience: number;
+    total: number;
+  } | null;
+  show: {
+    id: string;
+    startTime: string;
+    format: Format;
+    audioType: string | null;
+    movie: Movie;
+    screen: {
+      id: string;
+      name: string;
+      theater: Theater;
+    };
+  };
 }
 
 // ── User / Auth ──

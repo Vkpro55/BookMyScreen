@@ -41,6 +41,15 @@ export type {
   RefreshToken,
   PaymentOrder,
   PaymentWebhookEvent,
+  Booking,
+  BookingFee,
 } from "@prisma/client";
 
-export { Format, SeatStatus, Role, PaymentOrderStatus, Prisma } from "@prisma/client";
+export {
+  Format,
+  SeatStatus,
+  Role,
+  PaymentOrderStatus,
+  Prisma,
+  BookingStatus,
+} from "@prisma/client";

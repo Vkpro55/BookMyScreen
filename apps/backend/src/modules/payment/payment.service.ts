@@ -353,12 +353,20 @@ export const verifyPayment = async (paymentData: VerifyPayment) => {
       where: { razorpayOrderId: paymentData.razorpay_order_id },
     });
 
+    if (localOrder?.razorpayOrderId) {
+      try {
+        return await reconcileOrder(localOrder.razorpayOrderId);
+      } catch {
+        // Keep the order recoverable for webhook or manual reconciliation.
+      }
+    }
+
     return prisma.paymentOrder.update({
       where: { razorpayOrderId: paymentData.razorpay_order_id },
       data: {
         status: mergeStatus(
           localOrder?.status ?? PaymentOrderStatus.CREATED,
-          PaymentOrderStatus.AUTHORIZED,
+          PaymentOrderStatus.UNKNOWN,
         ),
         razorpayPaymentId: paymentData.razorpay_payment_id,
         lastError: getGatewayErrorMessage(error),
@@ -400,6 +408,24 @@ export const reconcileOrder = async (razorpayOrderId: string) => {
           : null,
     },
   });
+};
+
+export const reconcileOrderByIdempotencyKey = async (
+  idempotencyKey: string,
+) => {
+  const localOrder = await prisma.paymentOrder.findUnique({
+    where: { idempotencyKey },
+  });
+
+  if (!localOrder) {
+    throw createHttpError(404, "Payment order not found");
+  }
+
+  if (!localOrder.razorpayOrderId) {
+    return localOrder;
+  }
+
+  return reconcileOrder(localOrder.razorpayOrderId);
 };
 
 export const handleWebhook = async ({

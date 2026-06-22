@@ -24,3 +24,13 @@ export const PaymentOrderParamsSchema = z.object({
 });
 
 export type PaymentOrderParams = z.infer<typeof PaymentOrderParamsSchema>;
+
+export const PaymentOrderLookupSchema = z.object({
+  idempotencyKey: z
+    .string()
+    .trim()
+    .min(16, "Idempotency key must be at least 16 characters")
+    .max(120, "Idempotency key is too long"),
+});
+
+export type PaymentOrderLookup = z.infer<typeof PaymentOrderLookupSchema>;

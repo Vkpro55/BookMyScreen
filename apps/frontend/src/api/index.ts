@@ -20,8 +20,11 @@ import type {
   ActivateUserInput,
   LogoutResponse,
   CreatePaymentOrderInput,
+  ReconcilePaymentOrderInput,
   VerifyPaymentInput,
   PaymentOrder,
+  CreateBookingInput,
+  Booking,
 } from "./types";
 
 export { ApiRequestError };
@@ -126,8 +129,17 @@ export const updateSeatStatus = (body: UpdateSeatStatusInput) =>
 export const createPaymentOrder = (body: CreatePaymentOrderInput) =>
   getData<PaymentOrder>(axiosWrapper.post("/payments/orders", body));
 
+export const reconcilePaymentOrder = (body: ReconcilePaymentOrderInput) =>
+  getData<PaymentOrder>(axiosWrapper.post("/payments/orders/reconcile", body));
+
 export const verifyPayment = (body: VerifyPaymentInput) =>
   getData<PaymentOrder>(axiosWrapper.post("/payments/verify", body));
+
+export const createBooking = (body: CreateBookingInput) =>
+  getData<Booking>(axiosWrapper.post("/bookings", body));
+
+export const getMyBookings = () =>
+  getData<Booking[]>(axiosWrapper.get("/bookings/my"));
 
 // ── Auth ────────────────────────────────────────────
 
