@@ -1,0 +1,1285 @@
+openapi: 3.0.3
+info:
+  title: BookMyScreen API
+  version: 1.0.0
+  description: >
+    REST API for BookMyScreen. It covers authentication, users, movies,
+    theaters, screens, shows, seat status, Razorpay payments, payment
+    reconciliation, booking finalization, and profile booking history.
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local backend
+
+tags:
+  - name: Auth
+  - name: Users
+  - name: Movies
+  - name: Theaters
+  - name: Screens
+  - name: Shows
+  - name: Payments
+  - name: Bookings
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken
+
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        field:
+          type: string
+          example: email
+        message:
+          type: string
+          example: Email is required
+      required:
+        - message
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        errors:
+          oneOf:
+            - $ref: "#/components/schemas/ApiError"
+            - type: array
+              items:
+                $ref: "#/components/schemas/ApiError"
+      required:
+        - success
+        - errors
+
+    Format:
+      type: string
+      enum: [TWO_D, THREE_D, IMAX, PVR_PXL]
+
+    SeatStatus:
+      type: string
+      enum: [AVAILABLE, BOOKED, BLOCKED]
+
+    Role:
+      type: string
+      enum: [admin, user]
+
+    PaymentOrderStatus:
+      type: string
+      enum: [PROCESSING, UNKNOWN, CREATED, ATTEMPTED, AUTHORIZED, PAID, FAILED]
+
+    BookingStatus:
+      type: string
+      enum: [CONFIRMED, FAILED, CANCELLED]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        role:
+          $ref: "#/components/schemas/Role"
+        activateUser:
+          type: boolean
+      required: [id, email, role, activateUser]
+
+    CreateUserInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        phone:
+          type: string
+          example: "9876543210"
+        role:
+          $ref: "#/components/schemas/Role"
+      required: [email]
+
+    ActivateUserInput:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+          example: "9876543210"
+        activateUser:
+          type: boolean
+          example: true
+      required: [name, phone, activateUser]
+
+    SendOtpInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required: [email]
+
+    SendOtpResponse:
+      type: object
+      properties:
+        hash:
+          type: string
+        email:
+          type: string
+          format: email
+        msg:
+          type: string
+      required: [hash, email, msg]
+
+    VerifyOtpInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        otp:
+          type: string
+        hash:
+          type: string
+      required: [email, otp, hash]
+
+    VerifyOtpResponse:
+      type: object
+      properties:
+        auth:
+          type: boolean
+          example: true
+        user:
+          $ref: "#/components/schemas/User"
+      required: [auth, user]
+
+    Movie:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        duration:
+          type: integer
+          example: 150
+        genre:
+          type: array
+          items:
+            type: string
+        releaseDate:
+          type: string
+          format: date-time
+        languages:
+          type: array
+          items:
+            type: string
+        certification:
+          type: string
+          example: UA
+        posterUrl:
+          type: string
+          format: uri
+        rating:
+          type: number
+          minimum: 0
+          maximum: 10
+        votes:
+          type: integer
+        format:
+          allOf:
+            - $ref: "#/components/schemas/Format"
+          nullable: true
+      required:
+        - id
+        - title
+        - description
+        - duration
+        - genre
+        - releaseDate
+        - languages
+        - certification
+        - posterUrl
+        - rating
+        - votes
+
+    MovieInput:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        duration:
+          type: integer
+          minimum: 1
+        genre:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        releaseDate:
+          type: string
+          format: date-time
+        languages:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        certification:
+          type: string
+        posterUrl:
+          type: string
+          format: uri
+        rating:
+          type: number
+          minimum: 0
+          maximum: 10
+        votes:
+          type: integer
+          minimum: 0
+        format:
+          $ref: "#/components/schemas/Format"
+      required:
+        - title
+        - description
+        - duration
+        - genre
+        - releaseDate
+        - languages
+        - certification
+        - posterUrl
+        - rating
+        - votes
+
+    Theater:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        location:
+          type: string
+        logo:
+          type: string
+      required: [id, name, city, state, location, logo]
+
+    TheaterInput:
+      type: object
+      properties:
+        name:
+          type: string
+        location:
+          type: string
+        logo:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+      required: [name, location, logo, city, state]
+
+    Seat:
+      type: object
+      properties:
+        id:
+          type: string
+        number:
+          type: integer
+        rowId:
+          type: string
+      required: [id, number]
+
+    Row:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        screenId:
+          type: string
+        seats:
+          type: array
+          items:
+            $ref: "#/components/schemas/Seat"
+      required: [id, label]
+
+    Screen:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        theaterId:
+          type: string
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/Row"
+      required: [id, name, theaterId]
+
+    ScreenInput:
+      type: object
+      properties:
+        name:
+          type: string
+        rows:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+              seats:
+                type: array
+                minItems: 1
+                items:
+                  type: object
+                  properties:
+                    number:
+                      type: integer
+                      minimum: 1
+                  required: [number]
+            required: [label, seats]
+      required: [name, rows]
+
+    ShowInput:
+      type: object
+      properties:
+        movieId:
+          type: string
+        screenId:
+          type: string
+        format:
+          $ref: "#/components/schemas/Format"
+        audioType:
+          type: string
+          example: Dolby Atmos
+        startTime:
+          type: string
+          format: date-time
+        priceMap:
+          type: object
+          additionalProperties:
+            type: number
+          example:
+            A: 270
+            B: 290
+            C: 400
+      required: [movieId, screenId, format, startTime, priceMap]
+
+    ShowSeat:
+      type: object
+      properties:
+        id:
+          type: string
+        number:
+          type: integer
+        status:
+          $ref: "#/components/schemas/SeatStatus"
+      required: [id, number, status]
+
+    ShowRowWithSeats:
+      type: object
+      properties:
+        label:
+          type: string
+        price:
+          type: number
+        seats:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShowSeat"
+      required: [label, price, seats]
+
+    ShowBookingDetails:
+      type: object
+      properties:
+        id:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        format:
+          $ref: "#/components/schemas/Format"
+        audioType:
+          type: string
+          nullable: true
+        priceMap:
+          type: object
+          additionalProperties:
+            type: number
+        movie:
+          $ref: "#/components/schemas/Movie"
+        screen:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            theater:
+              $ref: "#/components/schemas/Theater"
+          required: [id, name, theater]
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShowRowWithSeats"
+      required: [id, startTime, format, priceMap, movie, screen, rows]
+
+    GroupedShow:
+      type: object
+      properties:
+        movie:
+          $ref: "#/components/schemas/Movie"
+        theater:
+          type: object
+          properties:
+            theaterDetails:
+              $ref: "#/components/schemas/Theater"
+            shows:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  startTime:
+                    type: string
+                    format: date-time
+                  format:
+                    $ref: "#/components/schemas/Format"
+                  audioType:
+                    type: string
+                    nullable: true
+                  screenName:
+                    type: string
+                  minPrice:
+                    type: number
+          required: [theaterDetails, shows]
+      required: [movie, theater]
+
+    UpdateSeatStatusInput:
+      type: object
+      properties:
+        showId:
+          type: string
+        seatId:
+          type: string
+        status:
+          $ref: "#/components/schemas/SeatStatus"
+      required: [showId, seatId, status]
+
+    PaymentOrderInput:
+      type: object
+      properties:
+        amount:
+          type: integer
+          minimum: 1
+          description: Amount in paise.
+          example: 28350
+        idempotencyKey:
+          type: string
+          minLength: 16
+          maxLength: 120
+      required: [amount, idempotencyKey]
+
+    PaymentOrder:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Razorpay order id in create/reconcile responses.
+        amount:
+          type: integer
+        currency:
+          type: string
+          example: INR
+        receipt:
+          type: string
+        status:
+          $ref: "#/components/schemas/PaymentOrderStatus"
+      required: [id, amount, currency, receipt, status]
+
+    VerifyPaymentInput:
+      type: object
+      properties:
+        razorpay_order_id:
+          type: string
+        razorpay_payment_id:
+          type: string
+        razorpay_signature:
+          type: string
+      required: [razorpay_order_id, razorpay_payment_id, razorpay_signature]
+
+    ReconcilePaymentInput:
+      type: object
+      properties:
+        idempotencyKey:
+          type: string
+          minLength: 16
+          maxLength: 120
+      required: [idempotencyKey]
+
+    BookingInput:
+      type: object
+      properties:
+        razorpayOrderId:
+          type: string
+        showId:
+          type: string
+        seats:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            properties:
+              seatId:
+                type: string
+              seatNumber:
+                type: string
+                example: A1
+            required: [seatId, seatNumber]
+        paymentMethod:
+          type: string
+          example: Razorpay
+      required: [razorpayOrderId, showId, seats, paymentMethod]
+
+    Booking:
+      type: object
+      properties:
+        id:
+          type: string
+        bookingRef:
+          type: string
+          example: BMS1710000000000123
+        status:
+          $ref: "#/components/schemas/BookingStatus"
+        seats:
+          type: array
+          items:
+            type: string
+          example: [A1, A2]
+        bookingDateTime:
+          type: string
+          format: date-time
+        paymentMethod:
+          type: string
+        payment:
+          type: object
+          properties:
+            amount:
+              type: integer
+            currency:
+              type: string
+            status:
+              $ref: "#/components/schemas/PaymentOrderStatus"
+            razorpayOrderId:
+              type: string
+              nullable: true
+            razorpayPaymentId:
+              type: string
+              nullable: true
+        fee:
+          type: object
+          nullable: true
+          properties:
+            ticketPrice:
+              type: number
+            convenience:
+              type: number
+            total:
+              type: number
+        show:
+          type: object
+          properties:
+            id:
+              type: string
+            startTime:
+              type: string
+              format: date-time
+            format:
+              $ref: "#/components/schemas/Format"
+            audioType:
+              type: string
+              nullable: true
+            movie:
+              $ref: "#/components/schemas/Movie"
+            screen:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                theater:
+                  $ref: "#/components/schemas/Theater"
+      required: [id, bookingRef, status, seats, bookingDateTime, paymentMethod]
+
+    SuccessUser:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: "#/components/schemas/User"
+
+    SuccessMovie:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: "#/components/schemas/Movie"
+
+    SuccessTheater:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: "#/components/schemas/Theater"
+
+    SuccessShow:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: "#/components/schemas/ShowBookingDetails"
+
+    SuccessPaymentOrder:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: "#/components/schemas/PaymentOrder"
+
+    SuccessBooking:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: "#/components/schemas/Booking"
+
+  responses:
+    BadRequest:
+      description: Validation failed.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: User is not authenticated.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Conflict:
+      description: Current state conflicts with the request.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+paths:
+  /auth/send-otp:
+    post:
+      tags: [Auth]
+      summary: Send OTP to an email address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendOtpInput"
+      responses:
+        "200":
+          description: OTP sent.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SendOtpResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /auth/verify-otp:
+    post:
+      tags: [Auth]
+      summary: Verify OTP and issue auth cookies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyOtpInput"
+      responses:
+        "200":
+          description: OTP verified.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifyOtpResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Clear auth cookies
+      responses:
+        "200":
+          description: Logged out.
+
+  /auth/refresh-token:
+    get:
+      tags: [Auth]
+      summary: Refresh access token using refresh cookie
+      responses:
+        "200":
+          description: Access token refreshed.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /users:
+    post:
+      tags: [Users]
+      summary: Create a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserInput"
+      responses:
+        "201":
+          description: User created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessUser"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+    get:
+      tags: [Users]
+      summary: List all users
+      responses:
+        "200":
+          description: Users returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
+
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get current logged-in user
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Current user.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessUser"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /users/activate/{id}:
+    patch:
+      tags: [Users]
+      summary: Activate and complete a user profile
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivateUserInput"
+      responses:
+        "200":
+          description: User activated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessUser"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /movies:
+    get:
+      tags: [Movies]
+      summary: List all movies
+      responses:
+        "200":
+          description: Movies returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Movie"
+    post:
+      tags: [Movies]
+      summary: Create a movie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovieInput"
+      responses:
+        "201":
+          description: Movie created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessMovie"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /movies/recommended:
+    get:
+      tags: [Movies]
+      summary: List top movies by votes
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Recommended movies returned.
+
+  /movies/{id}:
+    get:
+      tags: [Movies]
+      summary: Get movie by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Movie returned.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessMovie"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /theaters:
+    get:
+      tags: [Theaters]
+      summary: List theaters
+      responses:
+        "200":
+          description: Theaters returned.
+    post:
+      tags: [Theaters]
+      summary: Create theater
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TheaterInput"
+      responses:
+        "201":
+          description: Theater created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessTheater"
+
+  /theaters/{id}:
+    get:
+      tags: [Theaters]
+      summary: Get theater by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Theater returned.
+
+  /theaters/city/{city}:
+    get:
+      tags: [Theaters]
+      summary: List theaters by city
+      parameters:
+        - in: path
+          name: city
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Theaters returned.
+
+  /theaters/state/{state}:
+    get:
+      tags: [Theaters]
+      summary: List theaters by state
+      parameters:
+        - in: path
+          name: state
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Theaters returned.
+
+  /theaters/{id}/screens:
+    get:
+      tags: [Screens]
+      summary: List screens by theater
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Screens returned.
+    post:
+      tags: [Screens]
+      summary: Create screen with rows and seats
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScreenInput"
+      responses:
+        "201":
+          description: Screen created.
+
+  /theaters/{id}/screens/{screenId}:
+    get:
+      tags: [Screens]
+      summary: Get screen by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: screenId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Screen returned.
+
+  /shows:
+    get:
+      tags: [Shows]
+      summary: List shows grouped by movie, theater, city/state, and date
+      parameters:
+        - in: query
+          name: movieId
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: city
+          required: true
+          schema:
+            type: string
+          description: Existing backend field name; service currently treats it as state.
+        - in: query
+          name: date
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Grouped shows returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GroupedShow"
+    post:
+      tags: [Shows]
+      summary: Create show and initialize show seats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShowInput"
+      responses:
+        "201":
+          description: Show created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessShow"
+
+  /shows/{id}:
+    get:
+      tags: [Shows]
+      summary: Get show booking layout details
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Show returned.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessShow"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /shows/seats/status:
+    patch:
+      tags: [Shows]
+      summary: Update a show seat status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSeatStatusInput"
+      responses:
+        "200":
+          description: Seat status updated.
+
+  /payments/orders:
+    post:
+      tags: [Payments]
+      summary: Create or reuse a Razorpay payment order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentOrderInput"
+      responses:
+        "201":
+          description: Payment order created or reused.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessPaymentOrder"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /payments/verify:
+    post:
+      tags: [Payments]
+      summary: Verify Razorpay checkout callback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyPaymentInput"
+      responses:
+        "200":
+          description: Payment verified or recoverable status returned.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessPaymentOrder"
+
+  /payments/orders/reconcile:
+    post:
+      tags: [Payments]
+      summary: Reconcile payment order by idempotency key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReconcilePaymentInput"
+      responses:
+        "200":
+          description: Reconciled payment order.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessPaymentOrder"
+
+  /payments/orders/{razorpayOrderId}/reconcile:
+    post:
+      tags: [Payments]
+      summary: Reconcile payment order by Razorpay order id
+      parameters:
+        - in: path
+          name: razorpayOrderId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Reconciled payment order.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessPaymentOrder"
+
+  /payments/webhook:
+    post:
+      tags: [Payments]
+      summary: Razorpay webhook endpoint
+      description: This endpoint expects raw JSON bytes and Razorpay signature headers.
+      parameters:
+        - in: header
+          name: x-razorpay-signature
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: x-razorpay-event-id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Webhook processed or duplicate ignored.
+
+  /bookings:
+    post:
+      tags: [Bookings]
+      summary: Finalize a confirmed payment into a booking
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingInput"
+      responses:
+        "201":
+          description: Booking created or existing booking returned.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessBooking"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /bookings/my:
+    get:
+      tags: [Bookings]
+      summary: List bookings for current user
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Current user's bookings.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Booking"
+        "401":
+          $ref: "#/components/responses/Unauthorized"

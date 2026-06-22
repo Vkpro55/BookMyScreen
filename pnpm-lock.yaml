@@ -56,9 +56,15 @@ importers:
       razorpay:
         specifier: ^2.9.6
         version: 2.9.6
+      swagger-ui-express:
+        specifier: ^5.0.1
+        version: 5.0.1(express@5.2.1)
       ws:
         specifier: ^8.21.0
         version: 8.21.0
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.0
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -102,6 +108,9 @@ importers:
       "@types/nodemailer":
         specifier: ^8.0.1
         version: 8.0.1
+      "@types/swagger-ui-express":
+        specifier: ^4.1.8
+        version: 4.1.8
       "@types/ws":
         specifier: ^8.18.1
         version: 8.18.1
@@ -1318,6 +1327,12 @@ packages:
         integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==,
       }
 
+  "@scarf/scarf@1.4.0":
+    resolution:
+      {
+        integrity: sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==,
+      }
+
   "@standard-schema/spec@1.1.0":
     resolution:
       {
@@ -1706,6 +1721,12 @@ packages:
     resolution:
       {
         integrity: sha512-8mam4H1NHLtu7nmtalF7eyBH14QyOASmcxHhSfEoRyr0nP/YdoesEtU+uSRvMe96TW/HPTtkoKqQLl53N7UXMQ==,
+      }
+
+  "@types/swagger-ui-express@4.1.8":
+    resolution:
+      {
+        integrity: sha512-AhZV8/EIreHFmBV5wAs0gzJUNq9JbbSXgJLQubCC0jtIo6prnI9MIRRxnU4MZX9RB9yXxF1V4R7jtLl/Wcj31g==,
       }
 
   "@types/ws@8.18.1":
@@ -5184,6 +5205,21 @@ packages:
       }
     engines: { node: ">= 0.4" }
 
+  swagger-ui-dist@5.32.6:
+    resolution:
+      {
+        integrity: sha512-75ttZNaYCLoFPnozPZcTUU6mS3wKT8l7WLjU5zJSHFeJa23i5vtnze6IiCl4jDMPeQTXVXIgovq4M11NNfQvSA==,
+      }
+
+  swagger-ui-express@5.0.1:
+    resolution:
+      {
+        integrity: sha512-SrNU3RiBGTLLmFU8GIJdOdanJTl4TOmT27tt3bWWHppqYmAZ6IDuEuBvMU6nZq0zLEe6b/1rACXCgLZqO6ZfrA==,
+      }
+    engines: { node: ">= v0.10.32" }
+    peerDependencies:
+      express: ">=4.0.0 || >=5.0.0-beta"
+
   tailwindcss@4.3.0:
     resolution:
       {
@@ -6149,6 +6185,8 @@ snapshots:
 
   "@rtsao/scc@1.1.0": {}
 
+  "@scarf/scarf@1.4.0": {}
+
   "@standard-schema/spec@1.1.0": {}
 
   "@tailwindcss/node@4.3.0":
@@ -6365,6 +6403,11 @@ snapshots:
     dependencies:
       "@types/http-errors": 2.0.5
       "@types/node": 22.19.19
+
+  "@types/swagger-ui-express@4.1.8":
+    dependencies:
+      "@types/express": 5.0.6
+      "@types/serve-static": 2.2.0
 
   "@types/ws@8.18.1":
     dependencies:
@@ -8720,6 +8763,15 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
+  swagger-ui-dist@5.32.6:
+    dependencies:
+      "@scarf/scarf": 1.4.0
+
+  swagger-ui-express@5.0.1(express@5.2.1):
+    dependencies:
+      express: 5.2.1
+      swagger-ui-dist: 5.32.6
+
   tailwindcss@4.3.0: {}
 
   tapable@2.3.3: {}
@@ -8975,8 +9027,7 @@ snapshots:
 
   yallist@3.1.1: {}
 
-  yaml@2.9.0:
-    optional: true
+  yaml@2.9.0: {}
 
   yocto-queue@0.1.0: {}
 
