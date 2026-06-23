@@ -11,7 +11,7 @@ RUN npm install -g pnpm@9.0.0
 RUN pnpm install --frozen-lockfile
 
 ARG DATABASE_URL
-ENV DATABASE_URL=${DATABASE_URL}
+ENV DATABASE_URL=${DATABASE_URL}.env
 
 RUN pnpm run db:generate
 RUN pnpm run db:build
