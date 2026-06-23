@@ -159,3 +159,4 @@ Starts backend, frontend, and watches shared packages in parallel.
 ---
 
 **Built to demonstrate enterprise-grade full-stack development** 🚀
+https://excalidraw.com/#json=utwNBR4mHJGrSyuzAuk10,ivJkiecxc2TZqOpQEnjnzw
