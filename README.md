@@ -1,159 +1,161 @@
-# Turborepo starter
+# 🎬 BookMyScreen - Movie Booking System
 
-This Turborepo starter is maintained by the Turborepo core team.
+A full-stack movie ticket booking platform built with **React, Node.js, MongoDB, and Express**. Handles thousands of concurrent users with real-time seat locking, OTP authentication, and payment processing.
 
-## Using this example
+---
 
-Run the following command:
+## 🎯 What is BookMyScreen?
 
-```sh
-npx create-turbo@latest
+BookMyScreen is a complete movie ticket booking system where users can:
+
+- Browse movies and showtimes across multiple theatres
+- Select and reserve seats in real-time
+- Pay securely and receive booking confirmations
+- Manage bookings and view history
+
+**Key Challenge Solved:** Preventing double-booking when thousands of users try to book the same seat simultaneously. Solution: WebSocket-based real-time seat locking.
+
+Live on: https://bookmyscreen.publicvm.com/
+
+To see the OpenAPI docs: https://apibookmyscreen.publicvm.com/api-docs/
+
+---
+
+## ✨ Core Features
+
+| Feature                    | How It Works                                                                                                          |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Real-Time Seat Locking** | WebSockets sync seat status instantly across all clients. Booked seats auto-release after 30 seconds if payment fails |
+| **OTP Authentication**     | Time-based one-time password login. No passwords to remember. JWT tokens for secure sessions                          |
+| **Payment Processing**     | Simulated payment gateway with transaction logging, refund workflows, and invoice generation                          |
+| **Theatre Management**     | Multiple theatres grouped by location. Each theatre has different seat layouts and show timings                       |
+| **Responsive UI**          | Mobile-first design with toast notifications, modals, and interactive seat selection                                  |
+| **Booking History**        | Track all bookings, cancellations, and refunds in one place                                                           |
+
+---
+
+## 🛠 Tech Stack
+
+```
+FRONTEND              BACKEND              DATABASE             DEVOPS
+┌──────────────┐      ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│ React 18     │      │ Node.js      │     │              │     │ Docker       │
+│ TypeScript   │      │ Express      │     │ Prisma ORM   │     │ Aws EC2      │
+│ Vite         │      │ TypeScript   │     │              │     │              │
+│ WebSocket    │      │ WebSocket    │     │              │     │              │
+└──────────────┘      └──────────────┘     └──────────────┘     └──────────────┘
+                            ↓
+                      ┌──────────────┐
+                      │ Redis        │
+                      │ (Caching &   │
+                      │ Sessions)    │
+                      └──────────────┘
 ```
 
-## What's inside?
+**Why these choices?**
 
-This Turborepo includes the following packages/apps:
+- **React + TypeScript:** Type safety, reusable components, fast development
+- **Node.js + Express:** Non-blocking I/O handles concurrent requests efficiently
+- **Websocket:** Bi-directional communication for real-time seat updates
+- **Postgresql + Prisma:** Flexible schema + type-safe queries with migrations
+- **Redis:** Lightning-fast session storage and real-time data caching with ttl
+- **Docker:** Consistent environments (dev, test, production)
+- **Turborepo:** Monorepo structure for shared code (types, configs, UI components)
 
-### Apps and Packages
+---
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+## 🚀 Quick Start
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+### Option 1: Docker Compose (Recommended - 2 Commands!)
 
-### Utilities
+**Requirements:** Docker Desktop
 
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+# Clone and start everything
+git clone https://github.com/yourusername/bookmyscreen.git
+cd bookmyscreen
+docker-compose up --build
 ```
 
-Without global `turbo`, use your package manager:
+**That's it!** Services will be ready at:
 
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:4000/v1/api
+- Postgres, Redis: Running in containers
+
+**Useful commands:**
+
+```bash
+docker-compose down              # Stop services
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+### Option 2: Local Development
 
-```sh
-turbo build --filter=docs
+**Requirements:** Node.js 18+, Postgresql, Redis
+
+```bash
+# Install dependencies
+pnpm install
+
+# Create environment files
+# apps/backend/.env:
+# DATABASE_URL=mongodb://localhost:27017/bookmyscreen
+# REDIS_URL=redis://localhost:6379
+# JWT_SECRET=your_secret_key
+# PORT=5000
+
+# apps/frontend/.env:
+# VITE_API_URL=http://localhost:5400/v1/api
+
+# Setup database
+pnpm db:migrate
+pnpm db:seed
+
+# Start services (in separate terminals)
+cd apps/backend && pnpm dev    # :5000
+cd apps/frontend && pnpm dev   # :5173
 ```
 
-Without global `turbo`:
+---
 
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+### Option 3: All at Once with Turborepo
+
+```bash
+pnpm dev
 ```
 
-### Develop
+Starts backend, frontend, and watches shared packages in parallel.
 
-To develop all apps and packages, run the following command:
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+## 📚 Project Structure
 
-```sh
-cd my-turborepo
-turbo dev
-```
+| Folder                          | Purpose                                                        |
+| ------------------------------- | -------------------------------------------------------------- |
+| `apps/backend/src/modules/`     | Feature-specific logic (auth, booking, payment, theatre, show) |
+| `apps/backend/src/middlewares/` | Request validation, auth checks, error handling                |
+| `apps/backend/src/socket/`      | Real-time WebSocket handlers for seat updates                  |
+| `apps/frontend/src/components/` | Reusable React components (buttons, cards, modals)             |
+| `apps/frontend/src/pages/`      | Full page layouts (home, booking, profile, etc.)               |
+| `apps/frontend/src/context/`    | Global state management (user auth, bookings)                  |
+| `packages/db/prisma/`           | Database schema and migrations                                 |
+| `docker/`                       | Dockerfile configurations for backend and frontend             |
 
-Without global `turbo`, use your package manager:
+---
 
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
+## 🔐 Security & Performance
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+| Aspect                | Implementation                                                          |
+| --------------------- | ----------------------------------------------------------------------- |
+| **Authentication**    | OTP-based login → JWT tokens → Redis session storage                    |
+| **Authorization**     | Role-based access (admin/customer) via middleware                       |
+| **Real-time Updates** | WebSockets prevent polling overhead, reduce server load                 |
+| **Concurrency**       | Temporary seat locks (30 sec timeout) prevent double-booking            |
+| **Database**          | Prisma ORM prevents SQL injection via parameterized queries             |
+| **Caching**           | Redis stores sessions, user data, seat status for lightning-fast access |
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+---
 
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+**Built to demonstrate enterprise-grade full-stack development** 🚀
