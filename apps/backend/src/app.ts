@@ -15,7 +15,13 @@ const app: Express = express();
 
 const openApiFileCandidates = [
   path.join(process.cwd(), "src", "bookMyScreenOpenApi.yaml"),
-  path.join(process.cwd(), "apps", "backend", "src", "bookMyScreenOpenApi.yaml"),
+  path.join(
+    process.cwd(),
+    "apps",
+    "backend",
+    "src",
+    "bookMyScreenOpenApi.yaml",
+  ),
   path.join(process.cwd(), "bookMyScreenOpenApi.yaml"),
 ];
 
@@ -58,7 +64,7 @@ app.use("/api/v1", router);
 app.use(globalErrorHandler);
 
 app.get("/", (_, res) => {
-  res.send("Hello Welcome");
+  res.send("Hello Welcome to BookMyScreen api server");
 });
 
 export default app;
