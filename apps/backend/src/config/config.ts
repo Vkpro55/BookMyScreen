@@ -15,7 +15,7 @@ export const config: Readonly<{
   razorpay_webhook_secret: string;
   allowed_origins: string[];
 }> = {
-  port: Number(process.env.PORT) || 3000,
+  port: Number(process.env.PORT) || 4000,
   access_jwt_secret: process.env.ACCESS_TOKEN_SECRET ?? "",
   refresh_jwt_secret: process.env.REFRESH_TOKEN_SECRET ?? "",
   hashing_secret: process.env.HASHING_SECRET ?? "",
